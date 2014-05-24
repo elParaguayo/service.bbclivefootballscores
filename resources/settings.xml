@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+		<setting id="SetLeagues" label="Select leagues..." type="action" action="RunScript(special://home/addons/service.bbclivefootballscores/settings.py)" default=""/>
+		<setting id="Alerts" label="Disable alerts" type="bool"/>
+
+</settings>
