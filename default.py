@@ -23,6 +23,7 @@
 '''
 
 import os
+import sys
 
 if sys.version_info >=  (2, 7):
     import json as json
@@ -135,7 +136,7 @@ def updateWatchedLeagues(matchdict, selectedleagues):
     # Return the dictionary
     return matchdict
 
-def Notify(subject, message, image):
+def Notify(subject, message, image=None):
     '''Displays match notification.
 
     Take 3 arguments:

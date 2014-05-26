@@ -18,8 +18,16 @@
     It allows users to select which leagues they wish to receive updates 
     for.
 
-    It is called via the script configuration screen.
+    It is called via the script configuration screen or by passing 
+    parameters to trigger specific functions.
+
+    The script accepts the following parameters:
+      toggle:   Turns score notifications on and off
+      reset:    Resets watched league data
+
+    NB only one parameter should be passed at a time.
 '''
+import sys
 
 if sys.version_info >=  (2, 7):
     import json as json
@@ -35,9 +43,29 @@ from footballscores import getAllLeagues
 _A_ = xbmcaddon.Addon("service.bbclivefootballscores")
 _S_ = _A_.getSetting
 
+# Define modes
+STANDARD = 0
+RESET = 1
+TOGGLE_NOTIFICATIONS = 2
+
+modes= {"standard": STANDARD,
+        "reset": RESET,
+        "toggle": TOGGLE_NOTIFICATIONS}
+
+def Notify(subject, message, image=None):
+    '''Displays match notification.
+
+    Take 3 arguments:
+    subject:    subject line
+    message:    message line
+    image:      path to icon
+    '''
+    xbmc.executebuiltin('Notification(%s,%s,2000,%s)' % (subject,
+                                                         message, 
+                                                         image))
 def selectLeagues():
     '''Get list of available leagues and allow user to select those
-       leagues from which they want to receive updates.
+    leagues from which they want to receive updates.
     '''
     
     # Get list of leagues
@@ -129,15 +157,14 @@ def selectLeagues():
 
 def getMasterLeagueList():
     '''Returns master list of leagues/competitions for which we
-       can obtain data.
+    can obtain data.
 
-       Some competitions are only visible when matches are being
-       played so any new competitions are added to the master list
-       whenever this script is run.
+    Some competitions are only visible when matches are being
+    played so any new competitions are added to the master list
+    whenever this script is run.
 
-       Retuns: masterLeagueList - list of competitions in dict
+    Returns: masterLeagueList - list of competitions in dict
                                 format {"name": xx, "id", xx}
-
     '''
 
     currentleagues = getAllLeagues()
@@ -176,5 +203,38 @@ def saveLeagues(leagues):
     rawdata = json.dumps(leagues)
     _A_.setSetting(id="watchedleagues",value=rawdata)
 
-# Now we've define all our functions, let's get cracking...
-selectLeagues()
+def resetLeagues():
+    '''Clears all saved league IDs.
+
+    Useful if IDs change leading to duplicate menu entries.
+    '''
+    _A_.setSetting(id="watchedleagues",value=json.dumps([]))
+    _A_.setSetting(id="masterlist",value=json.dumps([]))
+    Notify("BBC Football Scores", "All league data reset.")
+
+def toggleNotification():
+    '''Toggles score notifications on or off.'''
+    state = not (_S_("Alerts") == "true")
+    Notify("BBC Football Scores", "Alerts are now %s" % ("on" if state else "off"))
+    _A_.setSetting(id="Alerts", value=str(state).lower())
+
+# Let's check how the user has called the script
+
+# If an argument has bee passed to the script, is it one that the script
+# is expecting?
+try:
+    mode = modes[sys.argv[1].lower()]
+except (IndexError, KeyError):
+    mode = STANDARD
+
+# User wants to reset league data
+if mode == RESET:
+    resetLeagues()
+
+# User wants to toggle notifications
+elif mode == TOGGLE_NOTIFICATIONS:
+    toggleNotification()
+
+# Let's run the script to select leagues to watch
+else:
+    selectLeagues()

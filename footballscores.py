@@ -176,8 +176,6 @@ class FootballMatch(matchcommon):
         for match in data.findAll("tr", {"id": re.compile(r'^match-row')}):
             if match.find(text=self.myteam):
 
-                print match
-
                 self.hometeam = match.find("span", {"class": "team-home"}).text ## ENCODE
                 
                 self.awayteam = match.find("span", {"class": "team-away"}).text
