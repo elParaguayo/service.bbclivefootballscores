@@ -52,6 +52,14 @@ modes= {"standard": STANDARD,
         "reset": RESET,
         "toggle": TOGGLE_NOTIFICATIONS}
 
+def localise(id):
+    '''Gets localised string.
+
+    Shamelessly copied from service.xbmc.versioncheck
+    '''
+    string = _A_.getLocalizedString(id).encode( 'utf-8', 'ignore' )
+    return string
+
 def Notify(subject, message, image=None):
     '''Displays match notification.
 
@@ -60,9 +68,8 @@ def Notify(subject, message, image=None):
     message:    message line
     image:      path to icon
     '''
-    xbmc.executebuiltin('Notification(%s,%s,2000,%s)' % (subject,
-                                                         message, 
-                                                         image))
+    xbmcgui.Dialog().notification(subject, message, image, 2000)
+
 def selectLeagues():
     '''Get list of available leagues and allow user to select those
     leagues from which they want to receive updates.
@@ -110,22 +117,23 @@ def selectLeagues():
             except:
 
                 # Tell the user there's a problem
-                userchoice.append("Error loading data")
+                userchoice.append(localise(32020))
                 
                 # We only need to tell the user once!
                 break
         
         # Add an option to say we've finished selecting leagues
-        userchoice.append("Done")
+        userchoice.append(localise(32022))
+        
       
         # Display the list
-        inputchoice = xbmcgui.Dialog().select("Choose league(s)", 
+        inputchoice = xbmcgui.Dialog().select(localise(32021), 
                                               userchoice)
         
 
         # Check whether the user has clicked on a league...
-        if (inputchoice >=0 and not userchoice[inputchoice] == "Done" 
-            and not userchoice[inputchoice] == "Error loading data"):
+        if (inputchoice >=0 and not userchoice[inputchoice] == localise(32022)
+            and not userchoice[inputchoice] == localise(32021)):
             
             # If it's one that's already in our watched league list...
             if int(leagues[inputchoice]["id"]) in watchedleagues:
@@ -140,8 +148,8 @@ def selectLeagues():
                 watchedleagues.append(int(leagues[inputchoice]["id"]))
         
         # If we're done
-        elif userchoice[inputchoice] == "Done":
-
+        elif userchoice[inputchoice] == localise(32022):
+       
             # Save our new list
             saveLeagues(watchedleagues)
 
@@ -150,7 +158,8 @@ def selectLeagues():
         
         # If there's an error or we hit cancel    
         elif (inputchoice == -1 or 
-              userchoice[inputchoice] == "Error loading data"):
+              userchoice[inputchoice] == localise(32020)):
+              
             
             # end the selection (but don't save new settings)
             finishedSelection = True
@@ -208,14 +217,14 @@ def resetLeagues():
 
     Useful if IDs change leading to duplicate menu entries.
     '''
-    _A_.setSetting(id="watchedleagues",value=json.dumps([]))
-    _A_.setSetting(id="masterlist",value=json.dumps([]))
-    Notify("BBC Football Scores", "All league data reset.")
+    _A_.setSetting(id="watchedleagues",value="[]")
+    _A_.setSetting(id="masterlist",value="[]")
+    ok = xbmcgui.Dialog().ok(localise(32023), localise(32027))
 
 def toggleNotification():
     '''Toggles score notifications on or off.'''
     state = not (_S_("Alerts") == "true")
-    Notify("BBC Football Scores", "Alerts are now %s" % ("on" if state else "off"))
+    Notify("BBC Football Scores", localise(32024) % (localise(32025) if state else localise(32026)))
     _A_.setSetting(id="Alerts", value=str(state).lower())
 
 # Let's check how the user has called the script

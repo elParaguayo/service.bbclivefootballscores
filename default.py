@@ -55,6 +55,13 @@ STATUS_DICT = {"FT": ["Full Time", IMG_FT],
               "HT": ["Half Time", IMG_HT],
               "L": ["Latest", IMG_LATEST],
               "Fixture": ["Fixture", IMG_FIXTURE]}
+def localise(id):
+    '''Gets localised string.
+
+    Shamelessly copied from service.xbmc.versioncheck
+    '''
+    string = _A_.getLocalizedString(id).encode( 'utf-8', 'ignore' )
+    return string
 
 def debug(msg):
     '''Script for adding debug messages.
@@ -125,7 +132,10 @@ def updateWatchedLeagues(matchdict, selectedleagues):
     for l in newleagues:
 
         # Add a League object to the dictioanary
-        matchdict[l] = League(l)
+        try:
+            matchdict[l] = League(l)
+        except TypeError:
+            pass
 
     # Loop through leaues to be removed
     for l in removedleagues:
@@ -144,9 +154,7 @@ def Notify(subject, message, image=None):
     message:    message line
     image:      path to icon
     '''
-    xbmc.executebuiltin('Notification(%s,%s,2000,%s)' % (subject,
-                                                         message, 
-                                                         image))
+    xbmcgui.Dialog().notification(subject, message, image, 2000)
 
 def checkMatch(match):
     '''Look at the match and work out what notification we want to show.

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
-		<setting id="SetLeagues" label="Select leagues..." type="action" action="RunScript(special://home/addons/service.bbclivefootballscores/settings.py)" default=""/>
-		<setting id="Alerts" label="Disable alerts" type="bool"/>
-
+		<setting id="SetLeagues" label="32000" type="action" action="RunScript(special://home/addons/service.bbclivefootballscores/settings.py)" default=""/>
+		<setting id="Alerts" label="32001" type="bool"/>
+		<setting type="sep"/>
+		<setting id="Reset" label="32002" type="action" action="RunScript(special://home/addons/service.bbclivefootballscores/settings.py,reset)" default=""/>
+		<setting label="You must hit 'ok' after resetting data" type="lsep"/>
 </settings>

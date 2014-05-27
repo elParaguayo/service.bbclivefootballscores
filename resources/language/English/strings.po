@@ -1,0 +1,67 @@
+# XBMC Media Center language file
+# Addon Name: BBC Football Scores
+# Addon id: service.bbclivefootballscores
+# Addon Provider: elParaguayo
+msgid ""
+msgstr ""
+"Project-Id-Version: XBMC Main\n"
+"Report-Msgid-Bugs-To: http://trac.xbmc.org/\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: XBMC Translation Team\n"
+"Language-Team: English (http://www.transifex.com/projects/p/xbmc-main/language/en/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#settings labels
+
+msgctxt "#32000"
+msgid "Select competitions..."
+msgstr ""
+
+msgctxt "#32001"
+msgid "Disable notifications"
+msgstr ""
+
+msgctxt "#32002"
+msgid "Reset competition data"
+msgstr ""
+
+#empty ids from 32003 through 32019
+
+#settings script messages
+
+msgctxt "#32020"
+msgid "Error loading data."
+msgstr ""
+
+msgctxt "#32021"
+msgid "Choose competition(s)..."
+msgstr ""
+
+msgctxt "#32022"
+msgid "Done"
+msgstr ""
+
+msgctxt "#32023"
+msgid "All competition data reset."
+msgstr ""
+
+msgctxt "#32024"
+msgid "Score notifications are now %s"
+msgstr ""
+
+msgctxt "#32025"
+msgid "on"
+msgstr ""
+
+msgctxt "#32026"
+msgid "off"
+msgstr ""
+
+msgctxt "#32027"
+msgid "You must press 'ok' on the settings window to complete the reset."
+msgstr ""
