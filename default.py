@@ -32,6 +32,7 @@ else:
 
 import xbmc
 import xbmcaddon
+import xbmcgui
 
 from footballscores import League
 
@@ -43,11 +44,11 @@ pluginPath = _A_.getAddonInfo("path")
 # Set some constants
 
 # Define our images
-IMG_GOAL = os.path.join(pluginPath, "images", "goal.jpg")
-IMG_FT = os.path.join(pluginPath, "images", "ft.jpg")
-IMG_LATEST = os.path.join(pluginPath, "images" ,"latest.jpg")
-IMG_HT = os.path.join(pluginPath, "images", "ht.jpg")
-IMG_FIXTURE = os.path.join(pluginPath, "images" , "notstarted.jpg")
+IMG_GOAL = os.path.join(pluginPath, "resources", "images", "goal.png")
+IMG_FT = os.path.join(pluginPath, "resources", "images", "whistle.png")
+IMG_LATEST = os.path.join(pluginPath, "resources", "images" ,"football.png")
+IMG_HT = os.path.join(pluginPath, "resources", "images", "ht.png")
+IMG_FIXTURE = os.path.join(pluginPath, "resources", "images" , "fixture.png")
 
 # STATUS_DICT object
 # Format is {status: [status text, image path]}
@@ -168,6 +169,7 @@ def checkMatch(match):
 
         # Gooooooooooooooooooooooooooooollllllllllllllll!
         Notify("GOAL!", str(match), IMG_GOAL)
+        print "GOAL: %s" % (match)
 
     # Has the status changed? e.g. kick-off, half-time, full-time?
     if match.StatusChanged:
@@ -177,6 +179,7 @@ def checkMatch(match):
 
         # Send the notification
         Notify(info[0], str(match), info[1])
+        print "STATUS: %s" % (match)
 
 def doUpdates(matchdict):
     '''Main function to updated leagues and check matches for updates.
