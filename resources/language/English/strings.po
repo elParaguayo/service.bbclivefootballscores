@@ -65,3 +65,56 @@ msgstr ""
 msgctxt "#32027"
 msgid "You must press 'ok' on the settings window to complete the reset."
 msgstr ""
+
+#empty ids from 32028 through 32099
+
+
+## LEAGUE TABLE
+
+msgctxt "#32100"
+msgid "Select League"
+msgstr ""
+
+msgctxt "#32101"
+msgid "Favourites"
+msgstr ""
+
+msgctxt "#32102"
+msgid "Show All"
+msgstr ""
+
+msgctxt "#32103"
+msgid "Close"
+msgstr ""
+
+msgctxt "#32104"
+msgid "Next"
+msgstr ""
+
+msgctxt "#32105"
+msgid "Previous"
+msgstr ""
+
+msgctxt "#32106"
+msgid "League Tables"
+msgstr ""
+
+msgctxt "#32107"
+msgid "Creating menus..."
+msgstr ""
+
+msgctxt "#32108"
+msgid "Getting list of available leagues"
+msgstr ""
+
+msgctxt "#32109"
+msgid "Getting list of favourite leagues"
+msgstr ""
+
+msgctxt "#32110"
+msgid "Building menu"
+msgstr ""
+
+msgctxt "#32111"
+msgid "Getting league table data"
+msgstr ""

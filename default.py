@@ -71,7 +71,7 @@ def debug(msg):
     msg:    debug message to send to XBMC log
     '''
 
-    xbmc.log(msg,xbmc.LOGDEBUG)
+    xbmc.log(u"bbclivefootballscores: {}".format(msg),xbmc.LOGDEBUG)
 
 def getSelectedLeagues():
     '''Returns list of leagues selected by user in settings file.'''
@@ -169,7 +169,7 @@ def checkMatch(match):
 
         # Gooooooooooooooooooooooooooooollllllllllllllll!
         Notify("GOAL!", str(match), IMG_GOAL)
-        print "GOAL: %s" % (match)
+        debug("GOAL: %s" % (match))
 
     # Has the status changed? e.g. kick-off, half-time, full-time?
     if match.StatusChanged:
@@ -179,7 +179,7 @@ def checkMatch(match):
 
         # Send the notification
         Notify(info[0], str(match), info[1])
-        print "STATUS: %s" % (match)
+        debug("STATUS: %s" % (match))
 
 def doUpdates(matchdict):
     '''Main function to updated leagues and check matches for updates.
@@ -190,17 +190,26 @@ def doUpdates(matchdict):
     Returns updated dictionary
     '''
 
+    ticker = u""
+
     # Loop through each league that we're following
     for league in matchdict:
 
+        
         # Get the league to update each match
         matchdict[league].Update()
+
+        ticker += u"[B]{}[/B]: ".format(matchdict[league].LeagueName)
+        ticker += u", ".join(unicode(m) for m in matchdict[league].LeagueMatches)
 
         # Loop through the matches
         for match in matchdict[league].LeagueMatches:
 
             # and check it for updates
             checkMatch(match)
+
+    debug(ticker)
+    xbmc.executebuiltin(u"skin.setstring(tickertext,{})".format(ticker))
 
     # Return the updated dicitonary object
     return matchdict
@@ -211,6 +220,7 @@ def doUpdates(matchdict):
 
 # Build dictionary of leagues we want to follow
 matchdict = updateWatchedLeagues({}, getSelectedLeagues())
+debug("LeagueList - {}".format(matchdict))
 
 # Check if we need to show alerts or not.
 alerts = checkAlerts()
@@ -219,6 +229,7 @@ alerts = checkAlerts()
 i = 0
 
 # Main service loop - need to exit script cleanly if XBMC is shutting down
+debug("Entering main loop...")
 while not xbmc.abortRequested:
 
     # 5 seconds before we do main update, let's check and see if there are any
@@ -232,6 +243,7 @@ while not xbmc.abortRequested:
     if alerts and not i:
 
         # Update our match dictionary and check for updates.
+        debug("Checking scores...")
         matchdict = doUpdates(matchdict)
         
     # Sleep for 5 seconds (if this is longer, XBMC may not shut down cleanly.)

@@ -1,0 +1,6 @@
+v0.1.2
+- Trying to make Kodi compatible structure so can be installed from zip file
+- Fixed import requirements
+- Added additional functionality
+  - League table
+  - Match detail

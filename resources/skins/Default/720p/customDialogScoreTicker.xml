@@ -1,0 +1,18 @@
+<window id="1141" type="dialog">
+  <allowoverlay>yes</allowoverlay>
+  <visible>Skin.HasSetting(ticker)</visible>
+  <coordinates>
+    <system>1</system>
+    <posX>200</posX>
+    <posY>100</posY>
+  </coordinates>
+  <controls>
+   <control type="label">
+    <scroll>true</scroll>
+    <autoscroll>true</autoscroll>
+   <label>$ESCINFO[skin.string(tickertext)]</label>
+   <visible>true</visible>
+
+   </control>
+  </controls>
+</window>
