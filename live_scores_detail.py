@@ -198,12 +198,8 @@ class XBMCLiveScoresDetail(object):
 
         self.matchlist = List()
 
-        print [unicode(x) for x in matches]
-
         window.placeControl(self.matchlist, 0, 0, rowspan=7, columnspan=4)
         self.matchlist.addItems([unicode(x) for x in matches])
-
-        print "LIST HEIGHT: {}".format(self.matchlist.getHeight())
 
         # Bind the list action
         p = self.matchlist.getSelectedPosition
@@ -253,8 +249,6 @@ class XBMCLiveScoresDetail(object):
 
         n = max(len(homeincidents), len(awayincidents))
 
-        print n
-
         # Create a window instance and size it
         window = AddonDialogWindow("Match Detail")
         window.setGeometry(700, 190 + (n * 30), n + 4, 11)
@@ -301,7 +295,6 @@ class XBMCLiveScoresDetail(object):
         # Choose another competition
         compbutton = Button("Different Game")
         window.placeControl(compbutton, n+3, 1, columnspan=4)
-        window.setFocus(compbutton)
         # Connect the button to a function.
         window.connect(compbutton, lambda w=window: self.back(w))
 
@@ -314,6 +307,9 @@ class XBMCLiveScoresDetail(object):
         # We may need some extra buttons (for multiple table competitions)
         nextbutton = Button(localise(32104))
         prevbutton = Button(localise(32105))
+        
+        closebutton.controlLeft(compbutton)
+        compbutton.controlRight(closebutton)
 
         # Ready to go...
         window.doModal()
