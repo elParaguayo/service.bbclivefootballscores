@@ -40,7 +40,7 @@ import xbmc
 import xbmcgui
 import xbmcaddon
 
-from footballscores import League
+from resources.lib.footballscores import League
 
 # Import PyXBMCt module.
 from pyxbmct.addonwindow import *
@@ -191,7 +191,7 @@ class XBMCLiveScoresDetail(object):
         n = min(len(matches),8)
 
         # Create a window instance and size it
-        window = AddonDialogWindow("TEMP")
+        window = AddonDialogWindow("Select Match")
         window.setGeometry(450, 450, 8, 4)
 
         #self.prog.update(94)
@@ -228,6 +228,10 @@ class XBMCLiveScoresDetail(object):
         window.connect(ACTION_NAV_BACK, lambda w=window: self.finish(w))
 
         #self.prog.update(96)
+
+        self.matchlist.controlLeft(closebutton)
+        self.matchlist.controlRight(closebutton)
+        closebutton.controlUp(self.matchlist)
 
         # We may need some extra buttons (for multiple table competitions)
         nextbutton = Button(localise(32104))

@@ -34,7 +34,7 @@ import xbmc
 import xbmcaddon
 import xbmcgui
 
-from footballscores import League
+from resources.lib.footballscores import League
 
 # Set the addon environment
 _A_ = xbmcaddon.Addon()

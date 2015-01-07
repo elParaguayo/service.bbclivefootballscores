@@ -39,7 +39,7 @@ import xbmc
 import xbmcgui
 import xbmcaddon
 
-from footballscores import LeagueTable
+from resources.lib.footballscores import LeagueTable
 
 # Import PyXBMCt module.
 from pyxbmct.addonwindow import *

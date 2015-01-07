@@ -38,7 +38,7 @@ import xbmc
 import xbmcgui
 import xbmcaddon
 
-from footballscores import getAllLeagues
+from resources.lib.footballscores import getAllLeagues
 
 _A_ = xbmcaddon.Addon("service.bbclivefootballscores")
 _S_ = _A_.getSetting
