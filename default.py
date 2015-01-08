@@ -71,7 +71,7 @@ def debug(msg):
     msg:    debug message to send to XBMC log
     '''
 
-    xbmc.log(u"bbclivefootballscores: {}".format(msg),xbmc.LOGDEBUG)
+    xbmc.log(u"bbclivefootballscores: {0}".format(msg),xbmc.LOGDEBUG)
 
 def getSelectedLeagues():
     '''Returns list of leagues selected by user in settings file.'''
@@ -199,7 +199,7 @@ def doUpdates(matchdict):
         # Get the league to update each match
         matchdict[league].Update()
 
-        ticker += u"[B]{}[/B]: ".format(matchdict[league].LeagueName)
+        ticker += u"[B]{0}[/B]: ".format(matchdict[league].LeagueName)
         ticker += u", ".join(unicode(m) for m in matchdict[league].LeagueMatches)
 
         # Loop through the matches
@@ -209,7 +209,7 @@ def doUpdates(matchdict):
             checkMatch(match)
 
     debug(ticker)
-    xbmc.executebuiltin(u"skin.setstring(tickertext,{})".format(ticker))
+    xbmc.executebuiltin(u"skin.setstring(tickertext,{0})".format(ticker))
 
     # Return the updated dicitonary object
     return matchdict
@@ -220,7 +220,7 @@ def doUpdates(matchdict):
 
 # Build dictionary of leagues we want to follow
 matchdict = updateWatchedLeagues({}, getSelectedLeagues())
-debug("LeagueList - {}".format(matchdict))
+debug("LeagueList - {0}".format(matchdict))
 
 # Check if we need to show alerts or not.
 alerts = checkAlerts()
