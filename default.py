@@ -50,6 +50,12 @@ IMG_LATEST = os.path.join(pluginPath, "resources", "images" ,"football.png")
 IMG_HT = os.path.join(pluginPath, "resources", "images", "ht.png")
 IMG_FIXTURE = os.path.join(pluginPath, "resources", "images" , "fixture.png")
 
+# Notificatio display time
+n = int(_S_("DisplayTime"))
+NOTIFY_TIME = n * 1000
+
+print "TIMEOUT {}".format(NOTIFY_TIME)
+
 # STATUS_DICT object
 # Format is {status: [status text, image path]}
 STATUS_DICT = {"FT": ["Full Time", IMG_FT],
@@ -77,13 +83,13 @@ def getSelectedLeagues():
     '''Returns list of leagues selected by user in settings file.'''
 
     # Try to get list of selected leagues from settings file
-    try: 
-        
+    try:
+
         # Get the settings value and convert to a list
         watchedleagues = json.loads(str(_S_("watchedleagues")))
 
     # if there's a problem
-    except: 
+    except:
 
         # Create an empty list (stops service from crashing)
         watchedleagues = []
@@ -124,7 +130,7 @@ def updateWatchedLeagues(matchdict, selectedleagues):
     # Build a list of leagues selected by user that are not in
     # our current dictionary
     newleagues = [l for l in selectedleagues if l not in matchdict]
-    
+
     # Build a list of leagues in our dictionary that are no longer in
     # list of leagues selected by users
     removedleagues = [l for l in matchdict if l not in selectedleagues]
@@ -147,15 +153,16 @@ def updateWatchedLeagues(matchdict, selectedleagues):
     # Return the dictionary
     return matchdict
 
-def Notify(subject, message, image=None):
+def Notify(subject, message, image=None, timeout=2000):
     '''Displays match notification.
 
-    Take 3 arguments:
+    Take 4 arguments:
     subject:    subject line
     message:    message line
     image:      path to icon
+    timeoute:   display time in milliseconds
     '''
-    xbmcgui.Dialog().notification(subject, message, image, 2000)
+    xbmcgui.Dialog().notification(subject, message, image, timeout)
 
 def checkMatch(match):
     '''Look at the match and work out what notification we want to show.
@@ -168,7 +175,7 @@ def checkMatch(match):
     if match.Goal:
 
         # Gooooooooooooooooooooooooooooollllllllllllllll!
-        Notify("GOAL!", str(match), IMG_GOAL)
+        Notify("GOAL!", str(match), IMG_GOAL, timeout=NOTIFY_TIME)
         debug("GOAL: %s" % (match))
 
     # Has the status changed? e.g. kick-off, half-time, full-time?
@@ -178,7 +185,7 @@ def checkMatch(match):
         info = STATUS_DICT.get(match.status, STATUS_DICT["Fixture"])
 
         # Send the notification
-        Notify(info[0], str(match), info[1])
+        Notify(info[0], str(match), info[1], timeout=NOTIFY_TIME)
         debug("STATUS: %s" % (match))
 
 def doUpdates(matchdict):
@@ -195,7 +202,7 @@ def doUpdates(matchdict):
     # Loop through each league that we're following
     for league in matchdict:
 
-        
+
         # Get the league to update each match
         matchdict[league].Update()
 
@@ -245,7 +252,7 @@ while not xbmc.abortRequested:
         # Update our match dictionary and check for updates.
         debug("Checking scores...")
         matchdict = doUpdates(matchdict)
-        
+
     # Sleep for 5 seconds (if this is longer, XBMC may not shut down cleanly.)
     xbmc.sleep(5000)
 
