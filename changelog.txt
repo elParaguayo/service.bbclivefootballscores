@@ -1,3 +1,11 @@
+v0.2.0 Release Candidate
+- This version should incorporate bug fixes and features from forum
+  - Fix unicode error when debugging
+  - Fix additional functionality for python 2.6 users
+  - Allow customisation of notification display time
+  - View additional windows from settings
+- If this version is stable then it will be submitted to official repo
+
 v0.1.2
 - Trying to make Kodi compatible structure so can be installed from zip file
 - Fixed import requirements

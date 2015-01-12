@@ -261,8 +261,8 @@ class XBMCLiveScoresDetail(object):
 
         #self.prog.update(94)
 
-        homelabel = Label("[B]{0}[/B]".format(match.HomeTeam), alignment=ALIGN_CENTER)
-        awaylabel = Label("[B]{0}[/B]".format(match.AwayTeam), alignment=ALIGN_CENTER)
+        homelabel = Label(u"[B]{0}[/B]".format(match.HomeTeam), alignment=ALIGN_CENTER)
+        awaylabel = Label(u"[B]{0}[/B]".format(match.AwayTeam), alignment=ALIGN_CENTER)
         scorelabel = Label("[B]{homescore} - {awayscore}[/B]".format(**match.matchdict), alignment=ALIGN_CENTER)
 
         window.placeControl(homelabel, 0, 0, columnspan=5)
