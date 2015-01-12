@@ -72,6 +72,28 @@ msgstr ""
 
 #empty ids from 32028 through 32099
 
+## ACTIONS
+
+msgctxt "#32080"
+msgid "Show league tables..."
+msgstr ""
+
+msgctxt "#32081"
+msgid "Show additional match detail..."
+msgstr ""
+
+
+## SETTINGS CATEGORIES
+
+msgctxt "#32090"
+msgid "General"
+msgstr ""
+
+msgctxt "#32091"
+msgid "Actions"
+msgstr ""
+
+
 
 ## LEAGUE TABLE
 
