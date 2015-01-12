@@ -15,10 +15,10 @@
 
 ''' This script is part of the BBC Football Scores service by elParaguayo
 
-    It allows users to select which leagues they wish to receive updates 
+    It allows users to select which leagues they wish to receive updates
     for.
 
-    It is called via the script configuration screen or by passing 
+    It is called via the script configuration screen or by passing
     parameters to trigger specific functions.
 
     The script accepts the following parameters:
@@ -32,9 +32,10 @@ import os
 
 if sys.version_info >=  (2, 7):
     import json as json
+    from collections import OrderedDict
 else:
     import simplejson as json
-from collections import OrderedDict
+    from resources.lib.ordereddict import OrderedDict
 
 import xbmc
 import xbmcgui
@@ -52,8 +53,8 @@ pluginPath = _A_.getAddonInfo("path")
 def imgloc(img):
     return os.path.join(pluginPath, "resources", "media" , img)
 
-imagedict = {"goal": imgloc("ball-white.png"), 
-             "yellow": imgloc("yellow-card.png"), 
+imagedict = {"goal": imgloc("ball-white.png"),
+             "yellow": imgloc("yellow-card.png"),
              "red": imgloc("red-card.png")}
 
 def localise(id):
@@ -77,7 +78,7 @@ class XBMCLiveScoresDetail(object):
         self.redraw = False
         self.menu = True
         self.leagueid = 0
-        
+
         # variables for root menu
         self.showall = True
         self.active = True
@@ -92,15 +93,15 @@ class XBMCLiveScoresDetail(object):
         # Get all of the available leagues, store it in an Ordered Dict
         # key=League name
         # value=League ID
-        self.allleagues = OrderedDict((x["name"], 
-                                       x["id"]) 
+        self.allleagues = OrderedDict((x["name"],
+                                       x["id"])
                                        for x in self.activeleagues)
 
         self.prog.update(75, localise(32109))
 
         # Create a similar Ordered Dict for just those leagues that we're
         # currently followin
-        self.watchedleagues = OrderedDict((x["name"], x["id"]) 
+        self.watchedleagues = OrderedDict((x["name"], x["id"])
                                           for x in self.favouriteleagues)
 
         self.prog.close()
@@ -108,7 +109,7 @@ class XBMCLiveScoresDetail(object):
 
     def showMenu(self, all_leagues=False):
 
-        
+
 
         # Setting this to False means that the menu won't display if
         # we hit escape
@@ -132,8 +133,8 @@ class XBMCLiveScoresDetail(object):
 
         # Bind the list action
         p = self.leaguelist.getSelectedPosition
-        window.connect(self.leaguelist, 
-                       lambda w = window: 
+        window.connect(self.leaguelist,
+                       lambda w = window:
                        self.setID(self.leaguelist.getListItem(p()).getLabel(),
                                   w))
 
@@ -203,8 +204,8 @@ class XBMCLiveScoresDetail(object):
 
         # Bind the list action
         p = self.matchlist.getSelectedPosition
-        window.connect(self.matchlist, 
-                       lambda w = window: 
+        window.connect(self.matchlist,
+                       lambda w = window:
                        self.setMatch(p(),
                                   w))
         #self.matchlist.addItems(["2","3"])
@@ -214,7 +215,7 @@ class XBMCLiveScoresDetail(object):
         #     match = Button(unicode(m))
         #     window.placeControl(match,i+1,0, columnspan=4)
 
-        #self.prog.update(94)    
+        #self.prog.update(94)
 
         # Add the close button
         closebutton = Button(localise(32103))
@@ -264,7 +265,7 @@ class XBMCLiveScoresDetail(object):
         scorelabel = Label("[B]{homescore} - {awayscore}[/B]".format(**match.matchdict), alignment=ALIGN_CENTER)
 
         window.placeControl(homelabel, 0, 0, columnspan=5)
-        window.placeControl(awaylabel, 0, 6, columnspan=5)   
+        window.placeControl(awaylabel, 0, 6, columnspan=5)
         window.placeControl(scorelabel, 1, 4, columnspan=3)
 
         # Add the incidents
@@ -287,7 +288,7 @@ class XBMCLiveScoresDetail(object):
             window.placeControl(p,i+2,7, columnspan=3)
             window.placeControl(c,i+2,10)
 
-        #self.prog.update(94)    
+        #self.prog.update(94)
 
         # Add the close button
         closebutton = Button(localise(32103))
@@ -311,7 +312,7 @@ class XBMCLiveScoresDetail(object):
         # We may need some extra buttons (for multiple table competitions)
         nextbutton = Button(localise(32104))
         prevbutton = Button(localise(32105))
-        
+
         closebutton.controlLeft(compbutton)
         compbutton.controlRight(closebutton)
 
@@ -355,7 +356,7 @@ class XBMCLiveScoresDetail(object):
         # Display the previous tablein the competition
         self.offset -= 1
         self.redraw = True
-        w.close() 
+        w.close()
 
     def finish(self,w):
         # We're done. Gracefully close down menu.
@@ -376,11 +377,11 @@ class XBMCLiveScoresDetail(object):
     def toggleMode(self,w):
         # Toggle between showing all competitions and just our favourites
         self.showall = not self.showall
-        self.active = True   
-        w.close() 
+        self.active = True
+        w.close()
 
     def start(self):
-        
+
         # Let's begin
         while self.active:
             # Show the main menu

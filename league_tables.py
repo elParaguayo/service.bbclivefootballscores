@@ -15,10 +15,10 @@
 
 ''' This script is part of the BBC Football Scores service by elParaguayo
 
-    It allows users to select which leagues they wish to receive updates 
+    It allows users to select which leagues they wish to receive updates
     for.
 
-    It is called via the script configuration screen or by passing 
+    It is called via the script configuration screen or by passing
     parameters to trigger specific functions.
 
     The script accepts the following parameters:
@@ -31,9 +31,10 @@ import sys
 
 if sys.version_info >=  (2, 7):
     import json as json
+    from collections import OrderedDict
 else:
     import simplejson as json
-from collections import OrderedDict
+    from resources.lib.ordereddict import OrderedDict
 
 import xbmc
 import xbmcgui
@@ -69,7 +70,7 @@ class XBMCLeagueTable(object):
         self.offset = 0
         self.menu = True
         self.leagueid = 0
-        
+
         # variables for root menu
         self.showall = True
         self.active = True
@@ -85,17 +86,17 @@ class XBMCLeagueTable(object):
         # Get all of the available leagues, store it in an Ordered Dict
         # key=League name
         # value=League ID
-        self.allleagues = OrderedDict((x["name"], 
-                                       x["id"][-9:]) 
+        self.allleagues = OrderedDict((x["name"],
+                                       x["id"][-9:])
                                        for x in self.league.getLeagues())
 
         self.prog.update(75, localise(32109))
 
         # Create a similar Ordered Dict for just those leagues that we're
         # currently followin
-        self.watchedleagues = OrderedDict((x["name"], x["id"][-9:]) 
-                                          for x in self.league.getLeagues() 
-                                          if int(x["id"][-9:]) 
+        self.watchedleagues = OrderedDict((x["name"], x["id"][-9:])
+                                          for x in self.league.getLeagues()
+                                          if int(x["id"][-9:])
                                              in self.watchedleagues)
 
         self.prog.close()
@@ -103,7 +104,7 @@ class XBMCLeagueTable(object):
 
     def showMenu(self, all_leagues=False):
 
-        
+
 
         # Setting this to False means that the menu won't display if
         # we hit escape
@@ -127,8 +128,8 @@ class XBMCLeagueTable(object):
 
         # Bind the list action
         p = self.leaguelist.getSelectedPosition
-        window.connect(self.leaguelist, 
-                       lambda w = window: 
+        window.connect(self.leaguelist,
+                       lambda w = window:
                        self.setID(self.leaguelist.getListItem(p()).getLabel(),
                                   w))
 
@@ -199,7 +200,7 @@ class XBMCLeagueTable(object):
             window.placeControl(team,i+1,1, columnspan=2)
             window.placeControl(points,i+1,3)
 
-        #self.prog.update(94)    
+        #self.prog.update(94)
 
         # Add the close button
         closebutton = Button(localise(32103))
@@ -226,7 +227,7 @@ class XBMCLeagueTable(object):
             closebutton.controlRight(nextbutton)
 
         # There are more leagues before the one we're showing
-        if self.offset > 0:            
+        if self.offset > 0:
             window.placeControl(prevbutton, n+2,0)
             window.connect(prevbutton, lambda w=window: self.previous(w))
             prevbutton.controlRight(closebutton)
@@ -241,7 +242,7 @@ class XBMCLeagueTable(object):
 
         self.prog.create(localise(32106), localise(32111))
         try:
-            raw = self.league.getLeagueTable("competition-%s" 
+            raw = self.league.getLeagueTable("competition-%s"
                                                  % (self.leagueid))
 
         except:
@@ -266,7 +267,7 @@ class XBMCLeagueTable(object):
         # Display the previous tablein the competition
         self.offset -= 1
         self.redraw = True
-        w.close() 
+        w.close()
 
     def finish(self,w):
         # We're done. Gracefully close down menu.
@@ -288,11 +289,11 @@ class XBMCLeagueTable(object):
     def toggleMode(self,w):
         # Toggle between showing all competitions and just our favourites
         self.showall = not self.showall
-        self.active = True   
-        w.close() 
+        self.active = True
+        w.close()
 
     def start(self):
-        
+
         # Let's begin
         while self.active:
             # Show the main menu
