@@ -31,9 +31,10 @@ import sys
 
 if sys.version_info >=  (2, 7):
     import json as json
+    from collections import OrderedDict
 else:
     import simplejson as json
-from collections import OrderedDict
+    from resources.lib.ordereddict import OrderedDict
 
 import xbmc
 import xbmcgui
