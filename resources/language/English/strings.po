@@ -30,6 +30,10 @@ msgctxt "#32002"
 msgid "Reset competition data"
 msgstr ""
 
+msgctxt "#32003"
+msgid "Notification display time (secs)"
+msgstr ""
+
 #empty ids from 32003 through 32019
 
 #settings script messages
