@@ -71,19 +71,20 @@ def debug(msg):
     msg:    debug message to send to XBMC log
     '''
 
-    xbmc.log(u"bbclivefootballscores: {0}".format(msg),xbmc.LOGDEBUG)
+    msg = u"bbclivefootballscores: {0}".format(msg).encode("ascii", "ignore")
+    xbmc.log(msg,xbmc.LOGDEBUG)
 
 def getSelectedLeagues():
     '''Returns list of leagues selected by user in settings file.'''
 
     # Try to get list of selected leagues from settings file
-    try: 
-        
+    try:
+
         # Get the settings value and convert to a list
         watchedleagues = json.loads(str(_S_("watchedleagues")))
 
     # if there's a problem
-    except: 
+    except:
 
         # Create an empty list (stops service from crashing)
         watchedleagues = []
@@ -124,7 +125,7 @@ def updateWatchedLeagues(matchdict, selectedleagues):
     # Build a list of leagues selected by user that are not in
     # our current dictionary
     newleagues = [l for l in selectedleagues if l not in matchdict]
-    
+
     # Build a list of leagues in our dictionary that are no longer in
     # list of leagues selected by users
     removedleagues = [l for l in matchdict if l not in selectedleagues]
@@ -195,10 +196,12 @@ def doUpdates(matchdict):
     # Loop through each league that we're following
     for league in matchdict:
 
-        
+
         # Get the league to update each match
         matchdict[league].Update()
 
+        if ticker:
+            ticker += "  "
         ticker += u"[B]{0}[/B]: ".format(matchdict[league].LeagueName)
         ticker += u", ".join(unicode(m) for m in matchdict[league].LeagueMatches)
 
@@ -209,7 +212,7 @@ def doUpdates(matchdict):
             checkMatch(match)
 
     debug(ticker)
-    xbmc.executebuiltin(u"skin.setstring(tickertext,{0})".format(ticker))
+    # xbmc.executebuiltin(u"skin.setstring(tickertext,{0})".format(ticker))
 
     # Return the updated dicitonary object
     return matchdict
@@ -245,7 +248,7 @@ while not xbmc.abortRequested:
         # Update our match dictionary and check for updates.
         debug("Checking scores...")
         matchdict = doUpdates(matchdict)
-        
+
     # Sleep for 5 seconds (if this is longer, XBMC may not shut down cleanly.)
     xbmc.sleep(5000)
 
