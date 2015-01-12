@@ -54,14 +54,13 @@ IMG_FIXTURE = os.path.join(pluginPath, "resources", "images" , "fixture.png")
 n = int(_S_("DisplayTime"))
 NOTIFY_TIME = n * 1000
 
-print "TIMEOUT {}".format(NOTIFY_TIME)
-
 # STATUS_DICT object
 # Format is {status: [status text, image path]}
 STATUS_DICT = {"FT": ["Full Time", IMG_FT],
               "HT": ["Half Time", IMG_HT],
               "L": ["Latest", IMG_LATEST],
               "Fixture": ["Fixture", IMG_FIXTURE]}
+
 def localise(id):
     '''Gets localised string.
 
