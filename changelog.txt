@@ -1,3 +1,7 @@
+v1.0.0 First release
+- To be submitted to official repo
+- New feature requests/bugs should be posted on Kodi on forum
+
 v0.2.0 Release Candidate
 - This version should incorporate bug fixes and features from forum
   - Fix unicode error when debugging

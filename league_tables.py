@@ -178,7 +178,6 @@ class XBMCLeagueTable(object):
         # If there are multiple tables for a competition (e.g. World Cup)
         # Let's just get the required one
         table = self.rawleaguedata[self.offset]
-        print table
 
         #self.prog.update(92)
 
@@ -284,7 +283,6 @@ class XBMCLeagueTable(object):
         self.redraw = True
         w.close()
         self.rawleaguedata = self.getLeagueTableData(self.leagueid)
-        print self.rawleaguedata
         self.prog.update(90)
 
     def toggleMode(self,w):
