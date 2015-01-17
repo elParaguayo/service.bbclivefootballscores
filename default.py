@@ -42,11 +42,11 @@ pluginPath = _A_.getAddonInfo("path")
 # Set some constants
 
 # Define our images
-IMG_GOAL = os.path.join(pluginPath, "resources", "images", "goal.png")
-IMG_FT = os.path.join(pluginPath, "resources", "images", "whistle.png")
-IMG_LATEST = os.path.join(pluginPath, "resources", "images" ,"football.png")
-IMG_HT = os.path.join(pluginPath, "resources", "images", "ht.png")
-IMG_FIXTURE = os.path.join(pluginPath, "resources", "images" , "fixture.png")
+IMG_GOAL = os.path.join(pluginPath, "resources", "media", "goal.png")
+IMG_FT = os.path.join(pluginPath, "resources", "media", "whistle.png")
+IMG_LATEST = os.path.join(pluginPath, "resources", "media" ,"football.png")
+IMG_HT = os.path.join(pluginPath, "resources", "media", "ht.png")
+IMG_FIXTURE = os.path.join(pluginPath, "resources", "media" , "fixture.png")
 
 # Notificatio display time
 n = int(_S_("DisplayTime"))
