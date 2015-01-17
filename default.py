@@ -18,8 +18,6 @@
     by elParaguayo
 
     Provides notifications for live matches from a large number of leagues.
-
-    Version: 0.1.0
 '''
 
 import os
