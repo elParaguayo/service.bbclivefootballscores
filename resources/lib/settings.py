@@ -15,17 +15,6 @@
 
 ''' This script is part of the BBC Football Scores service by elParaguayo
 
-    It allows users to select which leagues they wish to receive updates 
-    for.
-
-    It is called via the script configuration screen or by passing 
-    parameters to trigger specific functions.
-
-    The script accepts the following parameters:
-      toggle:   Turns score notifications on and off
-      reset:    Resets watched league data
-
-    NB only one parameter should be passed at a time.
 '''
 import sys
 
@@ -74,7 +63,7 @@ def selectLeagues():
     '''Get list of available leagues and allow user to select those
     leagues from which they want to receive updates.
     '''
-    
+
     # Get list of leagues
     # Format is [{"name": "Name of League",
     #             "id": "competition-xxxxxxx"}]
@@ -99,68 +88,68 @@ def selectLeagues():
             try:
                 # Add league details to our list
                 # leagues.append([league["name"],int(league["id"][12:])])
-                
+
                 # Check whether leagues is one we're following
                 if int(league["id"]) in watchedleagues:
 
                     # Mark the league if it's one the user has previously
                     # selected and add it to the select dialog
                     userchoice.append("*" + league["name"])
-                
+
                 else:
-                
+
                 # If not previously selected, we still need to add to
                 # select dialog
                     userchoice.append(league["name"])
-        
+
             # Hopefully we don't end up here...
             except:
 
                 # Tell the user there's a problem
                 userchoice.append(localise(32020))
-                
+
                 # We only need to tell the user once!
                 break
-        
+
         # Add an option to say we've finished selecting leagues
         userchoice.append(localise(32022))
-        
-      
+
+
         # Display the list
-        inputchoice = xbmcgui.Dialog().select(localise(32021), 
+        inputchoice = xbmcgui.Dialog().select(localise(32021),
                                               userchoice)
-        
+
 
         # Check whether the user has clicked on a league...
         if (inputchoice >=0 and not userchoice[inputchoice] == localise(32022)
             and not userchoice[inputchoice] == localise(32021)):
-            
+
             # If it's one that's already in our watched league list...
             if int(leagues[inputchoice]["id"]) in watchedleagues:
 
                 # ...then we need to remove it
                 watchedleagues.remove(int(leagues[inputchoice]["id"]))
-            
+
             # if not...
-            else:  
+            else:
 
                 # ... then we need to add it
                 watchedleagues.append(int(leagues[inputchoice]["id"]))
-        
+
         # If we're done
         elif userchoice[inputchoice] == localise(32022):
-       
+
             # Save our new list
             saveLeagues(watchedleagues)
 
             # Set the flag to leave the select dialog loop
             finishedSelection = True
-        
-        # If there's an error or we hit cancel    
-        elif (inputchoice == -1 or 
+
+        # If there's an error or we hit cancel
+        elif (inputchoice == -1 or
               userchoice[inputchoice] == localise(32020)):
-              
-            
+
+
             # end the selection (but don't save new settings)
             finishedSelection = True
 
@@ -184,7 +173,7 @@ def getMasterLeagueList():
     except:
         masterLeagueList = []
 
-    masterLeagueList += [x for x in currentleagues 
+    masterLeagueList += [x for x in currentleagues
                          if x not in masterLeagueList]
 
     _A_.setSetting(id="masterlist",value=json.dumps(masterLeagueList))
@@ -197,15 +186,15 @@ def loadLeagues():
     Returns list of league IDs.
     '''
 
-    try: 
+    try:
         watchedleagues = json.loads(str(_S_("watchedleagues")))
-    except: 
+    except:
         watchedleagues = []
 
     return watchedleagues
 
 def saveLeagues(leagues):
-    '''Converts list to JSON compatible string and saves it to our 
+    '''Converts list to JSON compatible string and saves it to our
     user's settings.
     '''
 
@@ -226,24 +215,3 @@ def toggleNotification():
     state = not (_S_("Alerts") == "true")
     Notify("BBC Football Scores", localise(32024) % (localise(32025) if state else localise(32026)))
     _A_.setSetting(id="Alerts", value=str(state).lower())
-
-# Let's check how the user has called the script
-
-# If an argument has bee passed to the script, is it one that the script
-# is expecting?
-try:
-    mode = modes[sys.argv[1].lower()]
-except (IndexError, KeyError):
-    mode = STANDARD
-
-# User wants to reset league data
-if mode == RESET:
-    resetLeagues()
-
-# User wants to toggle notifications
-elif mode == TOGGLE_NOTIFICATIONS:
-    toggleNotification()
-
-# Let's run the script to select leagues to watch
-else:
-    selectLeagues()

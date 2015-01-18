@@ -174,7 +174,7 @@ def checkMatch(match):
 
         # Gooooooooooooooooooooooooooooollllllllllllllll!
         Notify("GOAL!", str(match), IMG_GOAL, timeout=NOTIFY_TIME)
-        debug("GOAL: %s" % (match))
+        debug(u"GOAL: {0}".format(unicode(match)))
 
     # Has the status changed? e.g. kick-off, half-time, full-time?
     if match.StatusChanged:
@@ -184,7 +184,7 @@ def checkMatch(match):
 
         # Send the notification
         Notify(info[0], str(match), info[1], timeout=NOTIFY_TIME)
-        debug("STATUS: %s" % (match))
+        debug(u"STATUS: {0}".format(unicode(match)))
 
 def doUpdates(matchdict):
     '''Main function to updated leagues and check matches for updates.
@@ -227,7 +227,7 @@ def doUpdates(matchdict):
 
 # Build dictionary of leagues we want to follow
 matchdict = updateWatchedLeagues({}, getSelectedLeagues())
-debug("LeagueList - {0}".format(matchdict))
+debug(u"LeagueList - {0}".format(matchdict))
 
 # Check if we need to show alerts or not.
 alerts = checkAlerts()
