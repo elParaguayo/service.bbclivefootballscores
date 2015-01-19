@@ -19,14 +19,19 @@
 '''
 
 import Queue
-from time import sleep
-from threading import Thread
 
 import xbmcgui, xbmc
 
 class NotificationQueue(object):
 
     def __init__(self):
+
+        try:
+            from threading import Thread
+            self.can_thread = True
+        except ImportError:
+            from dummy_threading import Thread
+            self.can_thread = False
 
         self.queue = Queue.Queue()
         self.dialog = xbmcgui.Dialog()
@@ -40,7 +45,10 @@ class NotificationQueue(object):
 
     def add(self, title, message, icon=None, timeout=2000):
 
-        self.queue.put((title, message, icon, timeout))
+        if self.can_thread:
+            self.queue.put((title, message, icon, timeout))
+        else:
+            self.Notify(title, message, icon, timeout)
 
     def __process(self):
 
