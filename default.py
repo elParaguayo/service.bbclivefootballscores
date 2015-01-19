@@ -173,7 +173,7 @@ def checkMatch(match):
     if match.Goal:
 
         # Gooooooooooooooooooooooooooooollllllllllllllll!
-        Notify("GOAL!", str(match), IMG_GOAL, timeout=NOTIFY_TIME)
+        Notify("GOAL!", unicode(match), IMG_GOAL, timeout=NOTIFY_TIME)
         debug(u"GOAL: {0}".format(unicode(match)))
 
     # Has the status changed? e.g. kick-off, half-time, full-time?
@@ -183,7 +183,7 @@ def checkMatch(match):
         info = STATUS_DICT.get(match.status, STATUS_DICT["Fixture"])
 
         # Send the notification
-        Notify(info[0], str(match), info[1], timeout=NOTIFY_TIME)
+        Notify(info[0], unicode(match), info[1], timeout=NOTIFY_TIME)
         debug(u"STATUS: {0}".format(unicode(match)))
 
 def doUpdates(matchdict):

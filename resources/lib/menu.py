@@ -52,9 +52,15 @@ class FootballHelperMenu(object):
         self.mdbutton = Button("Show Match Detail")
         self.window.placeControl(self.mdbutton, 1, 0, columnspan = 2)
 
+        # CLOSE BUTTON
+
+        self.clbutton = Button("Close")
+        self.window.placeControl(self.clbutton, 4, 0, columnspan = 2)
+
         # Bind actions
         self.window.connect(ACTION_PREVIOUS_MENU, lambda: self.window.close())
         self.window.connect(ACTION_NAV_BACK, lambda: self.window.close())
+        self.window.connect(self.clbutton, lambda: self.window.close())
         self.window.connect(self.ltbutton, lambda: self.open("leaguetable"))
         self.window.connect(self.mdbutton, lambda: self.open("matchdetail"))
 
@@ -63,6 +69,8 @@ class FootballHelperMenu(object):
         # Handle navigation to make user experience better
         self.ltbutton.controlDown(self.mdbutton)
         self.mdbutton.controlUp(self.ltbutton)
+        self.mdbutton.controlDown(self.clbutton)
+        self.clbutton.controlUp(self.mdbutton)
         # self.leaguelist.controlLeft(self.leaguebutton)
         # self.leaguelist.controlRight(self.closebutton)
         # self.closebutton.controlUp(self.leaguelist)
