@@ -1,3 +1,9 @@
+v0.3.0 Release Candidate 2
+- Removes deprecated methods
+- Fixes issue where script fails if installed to different folder
+- Adds script to Programs menu and provides interface to launch additional
+  functionality.
+
 v0.2.0 Release Candidate
 - This version should incorporate bug fixes and features from forum
   - Fix unicode error when debugging
