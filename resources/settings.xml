@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
 	<category label="32090">
-		<setting id="SetLeagues" label="32000" type="action" action="RunScript(special://home/addons/service.bbclivefootballscores/settings.py)" default=""/>
+		<setting id="SetLeagues" label="32000" type="action" action="RunScript(service.bbclivefootballscores, mode=selectleague)" default=""/>
 		<setting id="Alerts" label="32001" type="bool"/>
 		<setting id="DisplayTime" label="32003" type="slider" range="1,1,20" option="int" default="2" />
 		<setting type="sep"/>
@@ -10,7 +10,7 @@
 	</category>
 
 	<category label="32091">
-		<setting id="dummy1" label="32080" type="action" action="RunScript(special://home/addons/service.bbclivefootballscores/league_tables.py)" />
-		<setting id="dummy2" label="32081" type="action" action="RunScript(special://home/addons/service.bbclivefootballscores/live_scores_detail.py)" />
+		<setting id="dummy1" label="32080" type="action" action="RunScript(service.bbclivefootballscores, mode=leaguetable)" />
+		<setting id="dummy2" label="32081" type="action" action="RunScript(service.bbclivefootballscores, mode=matchdetail)" />
 	</category>
 </settings>

@@ -15,19 +15,9 @@
 
 ''' This script is part of the BBC Football Scores service by elParaguayo
 
-    It allows users to select which leagues they wish to receive updates
-    for.
-
-    It is called via the script configuration screen or by passing
-    parameters to trigger specific functions.
-
-    The script accepts the following parameters:
-      toggle:   Turns score notifications on and off
-      reset:    Resets watched league data
-
-    NB only one parameter should be passed at a time.
 '''
 import sys
+import os
 
 if sys.version_info >=  (2, 7):
     import json as json
@@ -40,7 +30,7 @@ import xbmc
 import xbmcgui
 import xbmcaddon
 
-from resources.lib.footballscores import LeagueTable
+from resources.lib.footballscores import League
 from resources.lib.utils import closeAddonSettings
 
 # Import PyXBMCt module.
@@ -48,6 +38,14 @@ from pyxbmct.addonwindow import *
 
 _A_ = xbmcaddon.Addon("service.bbclivefootballscores")
 _S_ = _A_.getSetting
+pluginPath = _A_.getAddonInfo("path")
+
+def imgloc(img):
+    return os.path.join(pluginPath, "resources", "media" , img)
+
+imagedict = {"goal": imgloc("ball-white.png"),
+             "yellow": imgloc("yellow-card.png"),
+             "red": imgloc("red-card.png")}
 
 def localise(id):
     '''Gets localised string.
@@ -57,7 +55,7 @@ def localise(id):
     string = _A_.getLocalizedString(id).encode( 'utf-8', 'ignore' )
     return string
 
-class XBMCLeagueTable(object):
+class XBMCLiveScoresDetail(object):
 
     def __init__(self):
 
@@ -68,7 +66,6 @@ class XBMCLeagueTable(object):
 
         # variables for league table display
         self.redraw = False
-        self.offset = 0
         self.menu = True
         self.leagueid = 0
 
@@ -79,26 +76,23 @@ class XBMCLeagueTable(object):
         # Get our favourite leagues
         self.watchedleagues = json.loads(str(_S_("watchedleagues")))
 
-        # Create a Leaue Table instance
-        self.league = LeagueTable()
-
         self.prog.update(25, localise(32108))
+        self.activeleagues = League.getLeagues()
+        self.favouriteleagues = [x for x in self.activeleagues if int(x["id"]) in self.watchedleagues]
 
         # Get all of the available leagues, store it in an Ordered Dict
         # key=League name
         # value=League ID
         self.allleagues = OrderedDict((x["name"],
-                                       x["id"][-9:])
-                                       for x in self.league.getLeagues())
+                                       x["id"])
+                                       for x in self.activeleagues)
 
         self.prog.update(75, localise(32109))
 
         # Create a similar Ordered Dict for just those leagues that we're
         # currently followin
-        self.watchedleagues = OrderedDict((x["name"], x["id"][-9:])
-                                          for x in self.league.getLeagues()
-                                          if int(x["id"][-9:])
-                                             in self.watchedleagues)
+        self.watchedleagues = OrderedDict((x["name"], x["id"])
+                                          for x in self.favouriteleagues)
 
         self.prog.close()
 
@@ -167,47 +161,137 @@ class XBMCLeagueTable(object):
         self.leaguebutton.controlRight(self.closebutton)
         self.leaguebutton.controlUp(self.leaguelist)
 
+        # self.prog.close()
+
         # Ready to go...
         window.doModal()
 
-    def showLeagueTable(self):
+    def showLiveMatches(self):
 
         # Basic variables
         self.redraw = False
 
         # If there are multiple tables for a competition (e.g. World Cup)
         # Let's just get the required one
-        table = self.rawleaguedata[self.offset]
+        matches = self.rawdata.LeagueMatches
 
         #self.prog.update(92)
 
         # How many rows are in the table?
         # We'll need this to set the size of the display
-        n = len(table["table"])
+        n = min(len(matches),8)
 
         # Create a window instance and size it
-        window = AddonDialogWindow(table["name"])
-        window.setGeometry(450, (n + 4) * 25, n + 3, 4)
+        window = AddonDialogWindow("Select Match")
+        window.setGeometry(450, 450, 8, 4)
 
         #self.prog.update(94)
 
+        self.matchlist = List()
+
+        window.placeControl(self.matchlist, 0, 0, rowspan=7, columnspan=4)
+        self.matchlist.addItems([unicode(x) for x in matches])
+
+        # Bind the list action
+        p = self.matchlist.getSelectedPosition
+        window.connect(self.matchlist,
+                       lambda w = window:
+                       self.setMatch(p(),
+                                  w))
+        #self.matchlist.addItems(["2","3"])
+
         # Add the teams
-        for i, t in enumerate(table["table"]):
-            pos = Label(str(t.position))
-            team = Label(t.name)
-            points = Label(str(t.points), alignment=ALIGN_RIGHT)
-            window.placeControl(pos,i+1,0)
-            window.placeControl(team,i+1,1, columnspan=2)
-            window.placeControl(points,i+1,3)
+        # for i, m in enumerate(matches):
+        #     match = Button(unicode(m))
+        #     window.placeControl(match,i+1,0, columnspan=4)
 
         #self.prog.update(94)
 
         # Add the close button
         closebutton = Button(localise(32103))
-        window.placeControl(closebutton, n+2, 1, columnspan=2)
+        window.placeControl(closebutton, 7, 1, columnspan=2)
+        window.setFocus(self.matchlist)
+        # Connect the button to a function.
+        window.connect(closebutton, lambda w=window: self.finish(w))
+
+        # Not sure we need these...
+        window.connect(ACTION_PREVIOUS_MENU, lambda w=window: self.finish(w))
+        window.connect(ACTION_NAV_BACK, lambda w=window: self.finish(w))
+
+        #self.prog.update(96)
+
+        self.matchlist.controlLeft(closebutton)
+        self.matchlist.controlRight(closebutton)
+        closebutton.controlUp(self.matchlist)
+
+        # We may need some extra buttons (for multiple table competitions)
+        nextbutton = Button(localise(32104))
+        prevbutton = Button(localise(32105))
+
+        # Ready to go...
+        window.doModal()
+
+    def showMatchDetail(self, match):
+
+        # Basic variables
+        self.redraw = False
+
+        match.detailed = True
+        match.Update()
+
+        homeincidents = [x for x in match.rawincidents if x[0]=="home"]
+        awayincidents = [x for x in match.rawincidents if x[0]=="away"]
+
+        n = max(len(homeincidents), len(awayincidents))
+
+        # Create a window instance and size it
+        window = AddonDialogWindow("Match Detail")
+        window.setGeometry(700, 190 + (n * 30), n + 4, 11)
+
+        #self.prog.update(94)
+
+        homelabel = Label(u"[B]{0}[/B]".format(match.HomeTeam), alignment=ALIGN_CENTER)
+        awaylabel = Label(u"[B]{0}[/B]".format(match.AwayTeam), alignment=ALIGN_CENTER)
+        scorelabel = Label("[B]{homescore} - {awayscore}[/B]".format(**match.matchdict), alignment=ALIGN_CENTER)
+
+        window.placeControl(homelabel, 0, 0, columnspan=5)
+        window.placeControl(awaylabel, 0, 6, columnspan=5)
+        window.placeControl(scorelabel, 1, 4, columnspan=3)
+
+        # Add the incidents
+        for i, m in enumerate(homeincidents):
+            #t = Label(m[1][0], alignment=ALIGN_CENTER_X)
+            t = Image(imagedict[m[1]], aspectRatio=2)
+            p = Label(m[2], alignment=ALIGN_RIGHT)
+            c = Label(m[3], alignment=ALIGN_CENTER_X)
+
+            window.placeControl(t,i+2,0)
+            window.placeControl(p,i+2,1, columnspan=3)
+            window.placeControl(c,i+2,4)
+
+        for i, m in enumerate(awayincidents):
+            t = Image(imagedict[m[1]], aspectRatio=2)
+            p = Label(m[2], alignment=ALIGN_RIGHT)
+            c = Label(m[3], alignment=ALIGN_CENTER_X)
+
+            window.placeControl(t,i+2,6)
+            window.placeControl(p,i+2,7, columnspan=3)
+            window.placeControl(c,i+2,10)
+
+        #self.prog.update(94)
+
+        # Add the close button
+        closebutton = Button(localise(32103))
+        window.placeControl(closebutton, n+3, 6, columnspan=4)
         window.setFocus(closebutton)
         # Connect the button to a function.
         window.connect(closebutton, lambda w=window: self.finish(w))
+
+        # Choose another competition
+        compbutton = Button("Different Game")
+        window.placeControl(compbutton, n+3, 1, columnspan=4)
+        # Connect the button to a function.
+        window.connect(compbutton, lambda w=window: self.back(w))
 
         # Not sure we need these...
         window.connect(ACTION_PREVIOUS_MENU, lambda w=window: self.finish(w))
@@ -219,31 +303,17 @@ class XBMCLeagueTable(object):
         nextbutton = Button(localise(32104))
         prevbutton = Button(localise(32105))
 
-        # There are more leagues after the one we're showing
-        if self.offset < (len(self.rawleaguedata) - 1):
-            window.placeControl(nextbutton, n+2,3)
-            window.connect(nextbutton, lambda w=window: self.next(w))
-            nextbutton.controlLeft(closebutton)
-            closebutton.controlRight(nextbutton)
-
-        # There are more leagues before the one we're showing
-        if self.offset > 0:
-            window.placeControl(prevbutton, n+2,0)
-            window.connect(prevbutton, lambda w=window: self.previous(w))
-            prevbutton.controlRight(closebutton)
-            closebutton.controlLeft(prevbutton)
-
-        #self.prog.close()
+        closebutton.controlLeft(compbutton)
+        compbutton.controlRight(closebutton)
 
         # Ready to go...
         window.doModal()
 
-    def getLeagueTableData(self, ID):
+    def getLiveMatches(self, ID):
 
         self.prog.create(localise(32106), localise(32111))
         try:
-            raw = self.league.getLeagueTable("competition-%s"
-                                                 % (self.leagueid))
+            raw = League(self.leagueid)
 
         except:
             raw = None
@@ -252,10 +322,19 @@ class XBMCLeagueTable(object):
 
         return raw
 
+    def back(self, w):
+        self.redraw = True
+        w.close()
+
     def setID(self, ID, w):
         # Gets the ID of the selected league
         ID = self.allleagues[ID]
         self.setleague(ID,w)
+
+    def setMatch(self, ID, w):
+        m = self.rawdata.LeagueMatches[ID]
+        w.close()
+        self.showMatchDetail(m)
 
     def next(self,w):
         # Display the next table in the competion
@@ -282,7 +361,7 @@ class XBMCLeagueTable(object):
         self.offset = 0
         self.redraw = True
         w.close()
-        self.rawleaguedata = self.getLeagueTableData(self.leagueid)
+        self.rawdata = self.getLiveMatches(self.leagueid)
         self.prog.update(90)
 
     def toggleMode(self,w):
@@ -301,15 +380,4 @@ class XBMCLeagueTable(object):
             while self.redraw:
 
                 # Show a league table
-                self.showLeagueTable()
-
-if __name__ == "__main__":
-
-    # Close addon setting window (if open)
-    closeAddonSettings()
-
-    # Create an instance of the XBMC League Table
-    xlt = XBMCLeagueTable()
-
-    # and display it!
-    xlt.start()
+                self.showLiveMatches()
