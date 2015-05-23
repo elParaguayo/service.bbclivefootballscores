@@ -13,6 +13,7 @@
     <extension point="xbmc.python.library" library="helper.py" />
     <extension point="xbmc.python.script" library="helper.py" />
     <extension point="xbmc.service" library="default.py" start="login"/>
+    <extension point="xbmc.python.module" library="resources/lib/api" />
     <extension point="xbmc.addon.metadata">
 
     <platform>all</platform>
