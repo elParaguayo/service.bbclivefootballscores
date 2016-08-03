@@ -33,6 +33,7 @@ import xbmcaddon
 import xbmcgui
 
 from resources.lib.footballscores import League
+from resources.lib.notificationqueue import NotificationQueue
 
 # Set the addon environment
 _A_ = xbmcaddon.Addon("service.bbclivefootballscores")
@@ -191,7 +192,7 @@ def Notify(subject, message, image=None, timeout=2000):
     image:      path to icon
     timeoute:   display time in milliseconds
     '''
-    xbmcgui.Dialog().notification(subject, message, image, timeout)
+    queue.add(subject, message, image, timeout)
 
 def checkMatch(match):
     '''Look at the match and work out what notification we want to show.
@@ -344,6 +345,9 @@ checkTickers()
 
 # Variable for counting loop iterations
 i = 0
+
+# Create a notification queue object
+queue = NotificationQueue()
 
 # Main service loop - need to exit script cleanly if XBMC is shutting down
 debug("Entering main loop...")
