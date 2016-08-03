@@ -17,6 +17,7 @@
 
 '''
 import xbmc
+import xbmcaddon
 
 # Import PyXBMCt module.
 from pyxbmct.addonwindow import *
