@@ -29,6 +29,8 @@
 '''
 
 import sys
+import os
+import json
 
 # Import standard xbmc/kodi modules
 import xbmc
@@ -41,9 +43,71 @@ from resources.lib.league_tables import XBMCLeagueTable
 from resources.lib.live_scores_detail import XBMCLiveScoresDetail
 from resources.lib.utils import closeAddonSettings
 from resources.lib.menu import FootballHelperMenu
+from resources.lib.ticker import TickerOverlay
 
 # Import PyXBMCt module.
 from pyxbmct.addonwindow import *
+
+_A_ = xbmcaddon.Addon("service.bbclivefootballscores")
+_GET_ = _A_.getSetting
+_SET_ = _A_.setSetting
+
+getwin = {"jsonrpc":"2.0",
+          "id":1,
+          "method":"GUI.GetProperties",
+          "params":
+            {"properties":["currentwindow"]}
+         }
+
+def ToggleTicker():
+
+    try:
+        tickers = json.loads(_GET_("currenttickers"))
+    except ValueError:
+        tickers = {}
+
+    if not tickers:
+        tickers = {}
+
+    # Get the current window ID
+    current_window = xbmc.executeJSONRPC(json.dumps(getwin))
+    window_id = json.loads(current_window)["result"]["currentwindow"]["id"]
+
+    # json doesn't like integer keys so we need to look for a unicode object
+    key = unicode(window_id)
+
+    if key in tickers:
+
+        # There's already a ticker on this window
+        # Remove it from our list but get the ID of the ticker first
+        tickerid = tickers.pop(key)
+
+        # Get the window
+        w = xbmcgui.Window(window_id)
+
+        # Find the ticker
+        t = w.getControl(tickerid)
+
+        # and remove it
+        w.removeControl(t)
+
+    else:
+
+        # No ticker, so create one
+        ScoreTicker = TickerOverlay(window_id)
+
+        # Show it
+        ScoreTicker.show()
+
+        # Give it current text
+        tickertext = _GET_("ticker")
+        ScoreTicker.update(tickertext)
+
+        # Add to our list of current active tickers
+        tickers[ScoreTicker.windowid] = ScoreTicker.id
+
+    # Save our list
+    _SET_("currenttickers", json.dumps(tickers))
 
 try:
     params = dict((x.split("=") for x in sys.argv[1].lower().split(";")))
@@ -83,3 +147,7 @@ elif params.get("mode") == "matchdetail":
 
     # and display it!
     xlsd.start()
+
+elif params.get("mode") == "toggleticker":
+
+    ToggleTicker()

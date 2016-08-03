@@ -35,8 +35,9 @@ import xbmcgui
 from resources.lib.footballscores import League
 
 # Set the addon environment
-_A_ = xbmcaddon.Addon()
-_S_ = _A_.getSetting
+_A_ = xbmcaddon.Addon("service.bbclivefootballscores")
+_GET_ = _A_.getSetting
+_SET_ = _A_.setSetting
 pluginPath = _A_.getAddonInfo("path")
 
 # Set some constants
@@ -47,10 +48,20 @@ IMG_FT = os.path.join(pluginPath, "resources", "media", "whistle.png")
 IMG_LATEST = os.path.join(pluginPath, "resources", "media" ,"football.png")
 IMG_HT = os.path.join(pluginPath, "resources", "media", "ht.png")
 IMG_FIXTURE = os.path.join(pluginPath, "resources", "media" , "fixture.png")
+IMG_YELLOW = os.path.join(pluginPath, "resources", "media", "yellow-card.png")
+IMG_RED = os.path.join(pluginPath, "resources", "media", "red-card.png")
 
-# Notificatio display time
-n = int(_S_("DisplayTime"))
+# Notification display time
+n = int(_GET_("DisplayTime"))
 NOTIFY_TIME = n * 1000
+
+# Additional detail
+d = _GET_("AdditionalDetail") == "true"
+SHOW_GOALSCORER = _GET_("ShowGoalscorer") == "true"
+SHOW_BOOKINGS = int(_GET_("ShowBookings"))
+SHOW_YELLOW = bool(SHOW_BOOKINGS == 2)
+SHOW_RED = bool(SHOW_BOOKINGS != 0)
+DETAILED = all([d, any([SHOW_GOALSCORER, SHOW_BOOKINGS])])
 
 # STATUS_DICT object
 # Format is {status: [status text, image path]}
@@ -84,7 +95,7 @@ def getSelectedLeagues():
     try:
 
         # Get the settings value and convert to a list
-        watchedleagues = json.loads(str(_S_("watchedleagues")))
+        watchedleagues = json.loads(str(_GET_("watchedleagues")))
 
     # if there's a problem
     except:
@@ -103,7 +114,27 @@ def checkAlerts():
     False:  Alerts are disabled
     '''
 
-    return _S_("Alerts") != "true"
+    return _GET_("Alerts") != "true"
+
+def checkNotificationDetailLevel():
+    '''Sets certain constants to determine how much detail is required for
+       notifications.
+
+       Returns a tuple which should set the following variables:
+       SHOW_GOALSCORER
+       SHOW_BOOKINGS
+       SHOW_YELLOW
+       SHOW_RED
+       DETAILED
+    '''
+    d = _GET_("AdditionalDetail") == "true"
+    SHOW_GOALSCORER = _GET_("ShowGoalscorer") == "true"
+    SHOW_BOOKINGS = int(_GET_("ShowBookings"))
+    SHOW_YELLOW = bool(SHOW_BOOKINGS == 2)
+    SHOW_RED = bool(SHOW_BOOKINGS != 0)
+    DETAILED = all([d, any([SHOW_GOALSCORER, SHOW_BOOKINGS])])
+
+    return SHOW_GOALSCORER, SHOW_BOOKINGS, SHOW_YELLOW, SHOW_RED, DETAILED
 
 def serviceRunning():
     '''User should be able to deactivate alerts (rather than deactivating
@@ -138,7 +169,7 @@ def updateWatchedLeagues(matchdict, selectedleagues):
 
         # Add a League object to the dictioanary
         try:
-            matchdict[l] = League(l)
+            matchdict[l] = League(l, detailed=DETAILED)
         except TypeError:
             pass
 
@@ -169,12 +200,42 @@ def checkMatch(match):
     match:  footballscores.FootballMatch object
     '''
 
+    if match.booking:
+
+        # Should we show notification?
+        if (SHOW_YELLOW and DETAILED):
+            yellow = u" {1} ({0})".format(*match.LastYellowCard)
+        else:
+            yellow = None
+
+        Notify(u"YELLOW!{0}".format(yellow if yellow else u""), str(match), IMG_GOAL, timeout=NOTIFY_TIME)
+        debug(u"Yellow Card: %s" % (unicode(match)))
+
+    if match.redcard:
+
+        # Should we show notification?
+        if (SHOW_RED and DETAILED):
+            red = u" {1} ({0})".format(*match.LastRedCard)
+        else:
+            red = None
+
+        Notify(u"RED!{0}".format(red if red else u""), str(match), IMG_GOAL, timeout=NOTIFY_TIME)
+        debug(u"Red Card: %s" % (unicode(match)))
+
     # Has there been a goal?
     if match.Goal:
 
         # Gooooooooooooooooooooooooooooollllllllllllllll!
-        Notify("GOAL!", unicode(match), IMG_GOAL, timeout=NOTIFY_TIME)
-        debug(u"GOAL: {0}".format(unicode(match)))
+
+        # Should we show goalscorer?
+        if (SHOW_GOALSCORER and DETAILED):
+            scorer = u" {0}".format(match.LastGoalScorer[1])
+        else:
+            scorer = None
+
+        Notify(u"GOAL!{0}".format(scorer if scorer else u""), str(match), IMG_GOAL, timeout=NOTIFY_TIME)
+        debug(u"GOAL: %s" % (unicode(match)))
+
 
     # Has the status changed? e.g. kick-off, half-time, full-time?
     if match.StatusChanged:
@@ -185,6 +246,47 @@ def checkMatch(match):
         # Send the notification
         Notify(info[0], unicode(match), info[1], timeout=NOTIFY_TIME)
         debug(u"STATUS: {0}".format(unicode(match)))
+
+def checkTickers():
+
+    try:
+        tickers = json.loads(_GET_("currenttickers"))
+    except ValueError:
+        tickers = {}
+
+    d = []
+
+    for k in tickers:
+
+        w = xbmcgui.Window(int(k))
+        try:
+            c = w.getControl(tickers[k])
+        except RuntimeError:
+            d.append(k)
+
+    for k in d:
+        tickers.pop(k)
+
+    _SET_("currenttickers", json.dumps(tickers))
+
+
+def updateTickers(text):
+
+    try:
+        tickers = json.loads(_GET_("currenttickers"))
+    except ValueError:
+        tickers = {}
+
+    for k in tickers:
+
+        w = xbmcgui.Window(int(k))
+        c = w.getControl(tickers[k])
+        c.reset()
+        c.addLabel(text)
+
+
+    _SET_("ticker", text)
+
 
 def doUpdates(matchdict):
     '''Main function to updated leagues and check matches for updates.
@@ -200,14 +302,18 @@ def doUpdates(matchdict):
     # Loop through each league that we're following
     for league in matchdict:
 
+        # Make sure we only get additional information if we need it.
+        for m in matchdict[league].LeagueMatches:
+            m.detailed = DETAILED
 
         # Get the league to update each match
         matchdict[league].Update()
 
-        if ticker:
-            ticker += "  "
-        ticker += u"[B]{0}[/B]: ".format(matchdict[league].LeagueName)
-        ticker += u", ".join(unicode(m) for m in matchdict[league].LeagueMatches)
+        if matchdict[league]:
+            if ticker:
+                ticker += "  "
+            ticker += u"[B]{0}[/B]: ".format(matchdict[league].LeagueName)
+            ticker += u", ".join(unicode(m) for m in matchdict[league].LeagueMatches)
 
         # Loop through the matches
         for match in matchdict[league].LeagueMatches:
@@ -216,6 +322,7 @@ def doUpdates(matchdict):
             checkMatch(match)
 
     debug(ticker)
+    updateTickers(ticker)
     # xbmc.executebuiltin(u"skin.setstring(tickertext,{0})".format(ticker))
 
     # Return the updated dicitonary object
@@ -232,6 +339,9 @@ debug(u"LeagueList - {0}".format(matchdict))
 # Check if we need to show alerts or not.
 alerts = checkAlerts()
 
+# Clear old tickers
+checkTickers()
+
 # Variable for counting loop iterations
 i = 0
 
@@ -245,6 +355,11 @@ while not xbmc.abortRequested:
     if i == 11:
         matchdict = updateWatchedLeagues(matchdict, getSelectedLeagues())
         alerts = checkAlerts()
+        (SHOW_GOALSCORER,
+         SHOW_BOOKINGS,
+         SHOW_YELLOW,
+         SHOW_RED,
+         DETAILED) = checkNotificationDetailLevel()
 
     # If user wants alerts and we've reached ou desired loop number...
     if alerts and not i:
