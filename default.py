@@ -209,7 +209,10 @@ def checkMatch(match):
         else:
             yellow = None
 
-        Notify(u"YELLOW!{0}".format(yellow if yellow else u""), str(match), IMG_GOAL, timeout=NOTIFY_TIME)
+        Notify(u"YELLOW!{0}".format(yellow if yellow else u""),
+               str(match),
+               IMG_YELLOW,
+               timeout=NOTIFY_TIME)
         debug(u"Yellow Card: %s" % (unicode(match)))
 
     if match.redcard:
@@ -220,7 +223,10 @@ def checkMatch(match):
         else:
             red = None
 
-        Notify(u"RED!{0}".format(red if red else u""), str(match), IMG_GOAL, timeout=NOTIFY_TIME)
+        Notify(u"RED!{0}".format(red if red else u""),
+               str(match),
+               IMG_RED,
+               timeout=NOTIFY_TIME)
         debug(u"Red Card: %s" % (unicode(match)))
 
     # Has there been a goal?
@@ -234,7 +240,10 @@ def checkMatch(match):
         else:
             scorer = None
 
-        Notify(u"GOAL!{0}".format(scorer if scorer else u""), str(match), IMG_GOAL, timeout=NOTIFY_TIME)
+        Notify(u"GOAL!{0}".format(scorer if scorer else u""),
+               str(match),
+               IMG_GOAL,
+               timeout=NOTIFY_TIME)
         debug(u"GOAL: %s" % (unicode(match)))
 
 

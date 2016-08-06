@@ -82,6 +82,13 @@ msgctxt "#32081"
 msgid "Show additional match detail..."
 msgstr ""
 
+msgctxt "#32082"
+msgid "Show results..."
+msgstr ""
+
+msgctxt "#32083"
+msgid "Show fixtures..."
+msgstr ""
 
 ## SETTINGS CATEGORIES
 
@@ -143,4 +150,12 @@ msgstr ""
 
 msgctxt "#32111"
 msgid "Getting league table data"
+msgstr ""
+
+msgctxt "#32112"
+msgid "Results"
+msgstr ""
+
+msgctxt "#32113"
+msgid "Getting results data"
 msgstr ""

@@ -12,5 +12,6 @@
 	<category label="32091">
 		<setting id="dummy1" label="32080" type="action" action="RunScript(service.bbclivefootballscores, mode=leaguetable)" />
 		<setting id="dummy2" label="32081" type="action" action="RunScript(service.bbclivefootballscores, mode=matchdetail)" />
+		<setting id="dummy3" label="32082" type="action" action="RunScript(service.bbclivefootballscores, mode=results)" />
 	</category>
 </settings>

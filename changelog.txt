@@ -1,3 +1,10 @@
+v0.4.0 Lots of things to test
+- Add notification timeout fix
+- Add option to display goalscorer (experimental)
+- Add option to display bookings (experimental)
+- Add ticker option
+- Fix import error (as reported in forum)
+
 v0.3.0 Release Candidate 2
 - Removes deprecated methods
 - Fixes issue where script fails if installed to different folder
