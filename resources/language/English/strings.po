@@ -159,3 +159,11 @@ msgstr ""
 msgctxt "#32113"
 msgid "Getting results data"
 msgstr ""
+
+msgctxt "#32114"
+msgid "Fixtures"
+msgstr ""
+
+msgctxt "#32115"
+msgid "Getting fixtures data"
+msgstr ""
