@@ -42,6 +42,7 @@ from resources.lib.settings import selectLeagues, toggleNotification
 from resources.lib.league_tables import XBMCLeagueTable
 from resources.lib.live_scores_detail import XBMCLiveScoresDetail
 from resources.lib.results import XBMCResults
+from resources.lib.fixtures import XBMCFixtures
 from resources.lib.utils import closeAddonSettings
 from resources.lib.menu import FootballHelperMenu
 from resources.lib.ticker import TickerOverlay
@@ -153,11 +154,21 @@ elif params.get("mode") == "results":
     # Close addon setting window (if open)
     closeAddonSettings()
 
-    # Create an instance of the XBMC League Table
+    # Create an instance of the XBMC Results
     xr = XBMCResults()
 
     # and display it!
     xr.start()
+
+elif params.get("mode") == "fixtures":
+    # Close addon setting window (if open)
+    closeAddonSettings()
+
+    # Create an instance of the XBMC Fixtures
+    xf = XBMCFixtures()
+
+    # and display it!
+    xf.start()
 
 elif params.get("mode") == "toggleticker":
 

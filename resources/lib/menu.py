@@ -41,9 +41,12 @@ class FootballHelperMenu(object):
 
     def show(self):
 
+        self.control_list = []
+
         # Set the title and menu size
-        self.window = AddonDialogWindow("Menu")
+        self.window = AddonDialogWindow("BBC Football Scores")
         self.window.setGeometry(450,300,5,2)
+        self.control_list.append(self.window)
 
         # ITEM 1 - LEAGUE TABLES
         self.ltbutton = Button("Show League Tables")
@@ -57,10 +60,18 @@ class FootballHelperMenu(object):
         self.resbutton = Button("Show Results")
         self.window.placeControl(self.resbutton, 2, 0, columnspan = 2)
 
+        # ITEM 4 - MATCH DETAIL
+        self.fixbutton = Button("Show Fixtures")
+        self.window.placeControl(self.fixbutton, 3, 0, columnspan = 2)
+
         # CLOSE BUTTON
 
         self.clbutton = Button("Close")
         self.window.placeControl(self.clbutton, 4, 0, columnspan = 2)
+
+        # add buttons to control_list
+        self.control_list += [self.ltbutton, self.mdbutton,
+                              self.resbutton, self.fixbutton]
 
         # Bind actions
         self.window.connect(ACTION_PREVIOUS_MENU, lambda: self.window.close())
@@ -69,6 +80,7 @@ class FootballHelperMenu(object):
         self.window.connect(self.ltbutton, lambda: self.open("leaguetable"))
         self.window.connect(self.mdbutton, lambda: self.open("matchdetail"))
         self.window.connect(self.resbutton, lambda: self.open("results"))
+        self.window.connect(self.fixbutton, lambda: self.open("fixtures"))
 
         self.window.setFocus(self.ltbutton)
 
@@ -76,18 +88,19 @@ class FootballHelperMenu(object):
         self.ltbutton.controlDown(self.mdbutton)
         self.mdbutton.controlUp(self.ltbutton)
         self.mdbutton.controlDown(self.resbutton)
-        self.resbutton.controlDown(self.clbutton)
+        self.resbutton.controlDown(self.fixbutton)
         self.resbutton.controlUp(self.mdbutton)
-        self.clbutton.controlUp(self.resbutton)
-        # self.leaguelist.controlLeft(self.leaguebutton)
-        # self.leaguelist.controlRight(self.closebutton)
-        # self.closebutton.controlUp(self.leaguelist)
-        # self.closebutton.controlLeft(self.leaguebutton)
-        # self.leaguebutton.controlRight(self.closebutton)
-        # self.leaguebutton.controlUp(self.leaguelist)
+        self.fixbutton.controlDown(self.clbutton)
+        self.fixbutton.controlUp(self.resbutton)
+        self.clbutton.controlUp(self.fixbutton)
+
 
         # Ready to go...
         self.window.doModal()
+
+        # clean up
+        for control in self.control_list:
+            del control
 
     def open(self, mode):
 
