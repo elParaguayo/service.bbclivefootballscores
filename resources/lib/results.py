@@ -194,24 +194,33 @@ class XBMCResults(object):
 
         # Create a window instance and size it
         window = AddonDialogWindow(table["date"])
-        window.setGeometry(450, (n + 4) * 30, n + 3, 4)
+        window.setGeometry(450, (n + 4) * 30, n + 3, 15)
 
         #self.prog.update(94)
 
         # Add the teams
         for i,r in enumerate(table["results"]):
+            try:
+                r["score"] = r["score"].replace("-", " - ")
+            except:
+                pass
 
-            result = Label(u"{hometeam} {score} {awayteam}".format(**r),
-                           alignment=2)
+            # result = Label(u"{hometeam} {score} {awayteam}".format(**r),
+            #                alignment=2)
+            home = Label(u"{hometeam}".format(**r), alignment=1)
+            score = Label("{score}".format(**r), alignment=2)
+            away = Label(u"{awayteam}".format(**r))
 
-            window.placeControl(result,i+1, 0, columnspan=4)
+            window.placeControl(home, i+1, 0, columnspan=6)
+            window.placeControl(score, i+1, 6, columnspan=3)
+            window.placeControl(away, i+1, 9, columnspan=6)
 
 
         #self.prog.update(94)
 
         # Add the close button
         closebutton = Button(localise(32103))
-        window.placeControl(closebutton, n+2, 1, columnspan=2)
+        window.placeControl(closebutton, n+2, 5, columnspan=5)
         window.setFocus(closebutton)
         # Connect the button to a function.
         window.connect(closebutton, lambda w=window: self.finish(w))
@@ -228,14 +237,14 @@ class XBMCResults(object):
 
         # There are more leagues after the one we're showing
         if self.offset < (len(self.rawdata) - 1):
-            window.placeControl(nextbutton, n+2,3)
+            window.placeControl(nextbutton, n+2, 10, columnspan=5)
             window.connect(nextbutton, lambda w=window: self.next(w))
             nextbutton.controlLeft(closebutton)
             closebutton.controlRight(nextbutton)
 
         # There are more leagues before the one we're showing
         if self.offset > 0:
-            window.placeControl(prevbutton, n+2,0)
+            window.placeControl(prevbutton, n+2, 0, columnspan=5)
             window.connect(prevbutton, lambda w=window: self.previous(w))
             prevbutton.controlRight(closebutton)
             closebutton.controlLeft(prevbutton)

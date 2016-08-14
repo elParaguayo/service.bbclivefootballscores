@@ -190,24 +190,27 @@ class XBMCFixtures(object):
 
         # Create a window instance and size it
         window = AddonDialogWindow(fixtures["date"])
-        window.setGeometry(450, (n + 4) * 30, n + 3, 4)
+        window.setGeometry(450, (n + 4) * 30, n + 3, 11)
 
         #self.prog.update(94)
 
         # Add the teams
         for i,f in enumerate(fixtures["fixtures"]):
 
-            fixture = Label(u"{hometeam} v {awayteam}".format(**f),
-                            alignment=2)
+            home = Label(u"{hometeam}".format(**f), alignment=1)
+            vlab = Label("v", alignment=2)
+            away = Label(u"{awayteam}".format(**f))
 
-            window.placeControl(fixture, i+1, 0, columnspan=4)
+            window.placeControl(home, i+1, 0, columnspan=5)
+            window.placeControl(vlab, i+1, 5)
+            window.placeControl(away, i+1, 6, columnspan=5)
 
 
         #self.prog.update(94)
 
         # Add the close button
         closebutton = Button(localise(32103))
-        window.placeControl(closebutton, n+2, 1, columnspan=2)
+        window.placeControl(closebutton, n+2, 4, columnspan=3)
         window.setFocus(closebutton)
         # Connect the button to a function.
         window.connect(closebutton, lambda w=window: self.finish(w))
@@ -224,14 +227,14 @@ class XBMCFixtures(object):
 
         # There are more fixtures after the ones we're showing
         if self.offset < (len(self.rawdata) - 1):
-            window.placeControl(nextbutton, n+2,3)
+            window.placeControl(nextbutton, n+2, 7, columnspan=4)
             window.connect(nextbutton, lambda w=window: self.next(w))
             nextbutton.controlLeft(closebutton)
             closebutton.controlRight(nextbutton)
 
         # There are more fixtures before the ones we're showing
         if self.offset > 0:
-            window.placeControl(prevbutton, n+2,0)
+            window.placeControl(prevbutton, n+2, 0, columnspan=4)
             window.connect(prevbutton, lambda w=window: self.previous(w))
             prevbutton.controlRight(closebutton)
             closebutton.controlLeft(prevbutton)
