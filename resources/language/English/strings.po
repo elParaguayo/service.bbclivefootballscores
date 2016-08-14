@@ -70,7 +70,31 @@ msgctxt "#32027"
 msgid "You must press 'ok' on the settings window to complete the reset."
 msgstr ""
 
-#empty ids from 32028 through 32099
+msgctxt "#32028"
+msgid "Enable additional detailed information"
+msgstr ""
+
+msgctxt "#32029"
+msgid "Show goalscorer"
+msgstr ""
+
+msgctxt "#32030"
+msgid "Notify bookings"
+msgstr ""
+
+msgctxt "#32031"
+msgid "None"
+msgstr ""
+
+msgctxt "#32032"
+msgid "Red cards only"
+msgstr ""
+
+msgctxt "#32033"
+msgid "All"
+msgstr ""
+
+#empty ids from 32034 through 32099
 
 ## ACTIONS
 
