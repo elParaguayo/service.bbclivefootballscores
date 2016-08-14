@@ -879,7 +879,7 @@ class League(matchcommon):
                 # league = option.get("value")[12:]
                 league = {}
                 league["name"] = option.text.split("(")[0].strip()
-                league["id"] = option.get("value")[12:]
+                league["id"] = option.get("value")[12:].strip()
                 if league["id"]:
                     leagues.append(league)
 
@@ -1011,7 +1011,7 @@ class LeagueTable(matchcommon):
         leagues = form.findAll("option")
         for league in leagues:
             l = {}
-            if league.get("value") <> "":
+            if league.get("value") != "" and not league.get("value").endswith("competition-"):
                 l["name"] = league.text
                 l["id"] = league.get("value")
                 leaguelist.append(l)
