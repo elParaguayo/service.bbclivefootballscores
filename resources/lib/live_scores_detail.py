@@ -166,6 +166,9 @@ class XBMCLiveScoresDetail(object):
         # Ready to go...
         window.doModal()
 
+        # Clean up
+        window = None
+
     def showLiveMatches(self):
 
         # Basic variables
@@ -230,6 +233,9 @@ class XBMCLiveScoresDetail(object):
 
         # Ready to go...
         window.doModal()
+
+        # Clean up
+        window = None
 
     def showMatchDetail(self, match):
 
@@ -308,6 +314,9 @@ class XBMCLiveScoresDetail(object):
 
         # Ready to go...
         window.doModal()
+
+        # Clean up
+        window = None
 
     def getLiveMatches(self, ID):
 

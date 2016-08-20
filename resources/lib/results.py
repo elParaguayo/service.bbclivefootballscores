@@ -95,8 +95,6 @@ class XBMCResults(object):
                                        x["id"][-9:])
                                        for x in allcomps)
 
-        xbmc.log(str(self.allleagues))
-
         self.prog.update(75, localise(32109))
 
         # Create a similar Ordered Dict for just those leagues that we're
@@ -177,6 +175,9 @@ class XBMCResults(object):
         # Ready to go...
         window.doModal()
 
+        # Clean up
+        window = None
+
     def showResults(self):
 
         # Basic variables
@@ -254,6 +255,9 @@ class XBMCResults(object):
         # Ready to go...
         window.doModal()
 
+        # Clean up
+        window = None
+
     def getResultsData(self, ID):
 
         self.prog.create(localise(32112), localise(32113))
@@ -262,7 +266,6 @@ class XBMCResults(object):
                                                  % (self.leagueid))
 
         except:
-            print "ERROR"
             raw = None
 
         self.prog.close()

@@ -122,6 +122,7 @@ if not params:
 
     menu = FootballHelperMenu()
     menu.show()
+    menu = None
 
 
 # If there are parameters, let's see what we want to do...
@@ -140,6 +141,9 @@ elif params.get("mode") == "leaguetable":
     # and display it!
     xlt.start()
 
+    # Get rid of it when we're finished
+    xlt = None
+
 elif params.get("mode") == "matchdetail":
 
     # Close addon setting window (if open)
@@ -151,6 +155,9 @@ elif params.get("mode") == "matchdetail":
     # and display it!
     xlsd.start()
 
+    # Get rid of it when we're finished
+    xlsd = None
+
 elif params.get("mode") == "results":
     # Close addon setting window (if open)
     closeAddonSettings()
@@ -161,6 +168,9 @@ elif params.get("mode") == "results":
     # and display it!
     xr.start()
 
+    # Get rid of it when we're finished
+    xr = None
+
 elif params.get("mode") == "fixtures":
     # Close addon setting window (if open)
     closeAddonSettings()
@@ -170,6 +180,9 @@ elif params.get("mode") == "fixtures":
 
     # and display it!
     xf.start()
+
+    # Get rid of it when we're finished
+    xf = None
 
 elif params.get("mode") == "toggleticker":
 
