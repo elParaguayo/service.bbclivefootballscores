@@ -82,7 +82,7 @@ def debug(msg):
     msg:    debug message to send to XBMC log
     '''
     msg = u"bbclivefootballscores: {0}".format(msg).encode("ascii", "ignore")
-    xbmc.log(msg, xbmc.LOGDEBUG)
+    xbmc.log(msg)  # , xbmc.LOGDEBUG)
 
 
 class SettingsMonitor(xbmc.Monitor):
@@ -161,9 +161,9 @@ class FootballScoresService(object):
            updated.
         '''
         debug("Checking settings...")
-        self.updateWatchedLeagues()
         self.checkAlerts()
         self.checkNotificationDetailLevel()
+        self.updateWatchedLeagues()
         self.checkNotificationTime()
 
     def checkNotificationTime(self):
@@ -207,8 +207,8 @@ class FootballScoresService(object):
 
         if bk != self.SHOW_BOOKINGS:
             debug("Bookings are now {}.".format(BOOKINGS[bk]))
-            self.SHOW_YELLOW = bool(self.SHOW_BOOKINGS == 2)
-            self.SHOW_RED = bool(self.SHOW_BOOKINGS != 0)
+            self.SHOW_YELLOW = bool(bk == 2)
+            self.SHOW_RED = bool(bk != 0)
             self.SHOW_BOOKINGS = bk
 
         dt = all([d, any([self.SHOW_GOALSCORER, self.SHOW_BOOKINGS])])
@@ -478,3 +478,6 @@ class FootballScoresService(object):
 if __name__ == "__main__":
     scores_service = FootballScoresService()
     scores_service.run()
+
+    # Clean exit
+    scores_service = None
