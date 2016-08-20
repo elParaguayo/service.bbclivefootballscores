@@ -285,6 +285,7 @@ class FootballScoresService(object):
 
             # Should we show notification?
             if (self.SHOW_YELLOW and self.DETAILED):
+                debug(u"yellow card: {}".format(match.LastYellowCard))
                 try:
                     yellow = u" {1} ({0})".format(*match.LastYellowCard)
                 except AttributeError:
@@ -292,16 +293,19 @@ class FootballScoresService(object):
             else:
                 yellow = None
 
-            self.Notify(u"YELLOW!{0}".format(yellow if yellow else u""),
-                        unicode(match),
-                        IMG_YELLOW,
-                        timeout=self.NOTIFY_TIME)
-            debug(u"Yellow Card: {}, {}".format(match, yellow))
+            if self.SHOW_YELLOW:
+
+                self.Notify(u"YELLOW!{0}".format(yellow if yellow else u""),
+                            unicode(match),
+                            IMG_YELLOW,
+                            timeout=self.NOTIFY_TIME)
+                debug(u"Yellow Card: {}, {}".format(match, yellow))
 
         if match.redcard:
 
             # Should we show notification?
             if (self.SHOW_RED and self.DETAILED):
+                debug(u"red card: {}".format(match.LastRedCard))
                 try:
                     red = u" {1} ({0})".format(*match.LastRedCard)
                 except AttributeError:
@@ -309,11 +313,13 @@ class FootballScoresService(object):
             else:
                 red = None
 
-            self.Notify(u"RED!{0}".format(red if red else u""),
-                        unicode(match),
-                        IMG_RED,
-                        timeout=self.NOTIFY_TIME)
-            debug(u"Red Card: {}, {}".format(match, red))
+            if self.SHOW_RED:
+
+                self.Notify(u"RED!{0}".format(red if red else u""),
+                            unicode(match),
+                            IMG_RED,
+                            timeout=self.NOTIFY_TIME)
+                debug(u"Red Card: {}, {}".format(match, red))
 
         # Has there been a goal?
         if match.Goal:
@@ -322,6 +328,7 @@ class FootballScoresService(object):
 
             # Should we show goalscorer?
             if (self.SHOW_GOALSCORER and self.DETAILED):
+                debug(u"goalscorer: {}".format(match.LastGoalScorer))
                 try:
                     scorer = u" {0}".format(match.LastGoalScorer[1])
                 except AttributeError:
