@@ -82,7 +82,7 @@ def debug(msg):
     msg:    debug message to send to XBMC log
     '''
     msg = u"bbclivefootballscores: {0}".format(msg).encode("ascii", "ignore")
-    xbmc.log(msg)  # ,xbmc.LOGDEBUG
+    xbmc.log(msg, xbmc.LOGDEBUG)
 
 
 class SettingsMonitor(xbmc.Monitor):
@@ -296,7 +296,7 @@ class FootballScoresService(object):
                         unicode(match),
                         IMG_YELLOW,
                         timeout=self.NOTIFY_TIME)
-            debug(u"Yellow Card: %s" % (unicode(match)))
+            debug(u"Yellow Card: {}, {}".format(match, yellow))
 
         if match.redcard:
 
@@ -313,7 +313,7 @@ class FootballScoresService(object):
                         unicode(match),
                         IMG_RED,
                         timeout=self.NOTIFY_TIME)
-            debug(u"Red Card: %s" % (unicode(match)))
+            debug(u"Red Card: {}, {}".format(match, red))
 
         # Has there been a goal?
         if match.Goal:
@@ -333,7 +333,7 @@ class FootballScoresService(object):
                         unicode(match),
                         IMG_GOAL,
                         timeout=self.NOTIFY_TIME)
-            debug(u"GOAL: %s" % (unicode(match)))
+            debug(u"GOAL: {}, {}".format(match, scorer))
 
         # Has the status changed? e.g. kick-off, half-time, full-time?
         if match.StatusChanged:
