@@ -102,7 +102,8 @@ def ToggleTicker():
         ScoreTicker.show()
 
         # Give it current text
-        tickertext = _GET_("ticker")
+        tickertext = xbmc.getInfoLabel("Skin.String(bbcscorestickertext)")
+        tickertext = tickertext.replace("|", ",")
         ScoreTicker.update(tickertext)
 
         # Add to our list of current active tickers
