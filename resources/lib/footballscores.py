@@ -1280,10 +1280,6 @@ class Fixtures(matchcommon):
 
 def getAllLeagues():
 
-    tableleagues = LeagueTable().getLeagues()
-    tableleagues = [{"name": x["name"], "id": x["id"][12:]} for x in tableleagues]
-    matchleagues = League.getLeagues()
-
-    tableleagues += [x for x in matchleagues if x not in tableleagues]
-
-    return tableleagues
+    all_leagues = Fixtures().getCompetitions()
+    return [{"name": x["name"], "id": x["id"][12:]} for x in all_leagues
+               if x["id"].startswith("competition")]
