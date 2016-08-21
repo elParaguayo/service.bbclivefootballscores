@@ -173,6 +173,9 @@ class XBMCFixtures(object):
         # Ready to go...
         window.doModal()
 
+        # Clean up
+        window = None
+
     def showFixtures(self):
 
         # Basic variables
@@ -243,6 +246,9 @@ class XBMCFixtures(object):
 
         # Ready to go...
         window.doModal()
+
+        # Clean up
+        window = None
 
     def getFixturesData(self, ID):
 

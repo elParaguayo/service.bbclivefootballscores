@@ -99,8 +99,9 @@ class FootballHelperMenu(object):
         self.window.doModal()
 
         # clean up
-        for control in self.control_list:
-            del control
+        self.window = None
+        # for control in self.control_list:
+        #     del control
 
     def open(self, mode):
 

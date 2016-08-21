@@ -159,6 +159,9 @@ class XBMCLeagueTable(object):
         # Ready to go...
         window.doModal()
 
+        # Clean up
+        window = None
+
     def showLeagueTable(self):
 
         # Basic variables
@@ -226,6 +229,9 @@ class XBMCLeagueTable(object):
 
         # Ready to go...
         window.doModal()
+
+        # Clean up
+        window = None
 
     def getLeagueTableData(self, ID):
 
