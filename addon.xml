@@ -2,7 +2,7 @@
 
 <addon id="service.bbclivefootballscores"
        name="BBC Football Scores"
-       version="0.4.2"
+       version="0.4.3"
        provider-name="elParaguayo">
 
     <requires>
