@@ -103,8 +103,8 @@ def ToggleTicker():
 
         # Give it current text
         tickertext = xbmc.getInfoLabel("Skin.String(bbcscorestickertext)")
-        tickertext = tickertext.replace("|", ",")
-        ScoreTicker.update(tickertext)
+        tickertext = tickertext.decode("utf-8").replace("|", ",")
+        ScoreTicker.update(unicode(tickertext))
 
         # Add to our list of current active tickers
         tickers[ScoreTicker.windowid] = ScoreTicker.id

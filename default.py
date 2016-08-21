@@ -82,7 +82,7 @@ def debug(msg):
     msg:    debug message to send to XBMC log
     '''
     msg = u"bbclivefootballscores: {0}".format(msg).encode("ascii", "ignore")
-    xbmc.log(msg)  # , xbmc.LOGDEBUG)
+    xbmc.log(msg, xbmc.LOGDEBUG)
 
 
 class SettingsMonitor(xbmc.Monitor):
@@ -421,7 +421,7 @@ class FootballScoresService(object):
 
             if self.matchdict[league]:
                 if ticker:
-                    ticker += "  "
+                    ticker += u"  "
                 lgn = u"[B]{0}[/B]: ".format(self.matchdict[league].LeagueName)
                 mtc = u", ".join(unicode(m) for m
                                  in self.matchdict[league].LeagueMatches)
@@ -440,8 +440,8 @@ class FootballScoresService(object):
         # If there have been any changes then we need to update the tickers
         if ticker != self.ticker:
             debug(u"Ticker: {}".format(ticker))
-            self.ticker = ticker
-            xbmc.executebuiltin("Skin.SetString(bbcscorestickertext, {})".format(self.ticker.replace(",", "|")))
+            self.ticker = ticker.replace(",", "|").encode("utf-8")
+            xbmc.executebuiltin("Skin.SetString(bbcscorestickertext, {})".format(self.ticker))
             self.updateTickers()
 
     def run(self):
