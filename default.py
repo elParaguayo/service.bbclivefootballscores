@@ -396,7 +396,7 @@ class FootballScoresService(object):
             w = xbmcgui.Window(int(k))
             c = w.getControl(tickers[k])
             c.reset()
-            c.addLabel(self.ticker)
+            c.addLabel(self.ticker.decode("utf-8").replace("|", ","))
 
     def doUpdates(self):
         '''Main function to updated leagues and check matches for updates.
