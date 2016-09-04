@@ -177,7 +177,7 @@ class FootballScoresService(object):
             n = 2
 
         if n != (self.NOTIFY_TIME / 1000):
-            debug("Notification time now {} seconds".format(n))
+            debug("Notification time now {0} seconds".format(n))
             self.NOTIFY_TIME = n * 1000
 
     def checkAlerts(self):
@@ -186,7 +186,7 @@ class FootballScoresService(object):
         alerts = _GET_("Alerts") != "true"
 
         if alerts != self.SHOW_ALERTS:
-            debug("Alerts now {}.".format("ON" if alerts else "OFF"))
+            debug("Alerts now {0}.".format("ON" if alerts else "OFF"))
             self.SHOW_ALERTS = alerts
 
     def checkNotificationDetailLevel(self):
@@ -197,7 +197,7 @@ class FootballScoresService(object):
 
         gs = _GET_("ShowGoalscorer") == "true"
         if gs != self.SHOW_GOALSCORER:
-            debug("Goal scorer alerts now {}.".format("ON" if gs else "OFF"))
+            debug("Goal scorer alerts now {0}.".format("ON" if gs else "OFF"))
             self.SHOW_GOALSCORER = gs
 
         try:
@@ -206,7 +206,7 @@ class FootballScoresService(object):
             bk = 0
 
         if bk != self.SHOW_BOOKINGS:
-            debug("Bookings are now {}.".format(BOOKINGS[bk]))
+            debug("Bookings are now {0}.".format(BOOKINGS[bk]))
             self.SHOW_YELLOW = bool(bk == 2)
             self.SHOW_RED = bool(bk != 0)
             self.SHOW_BOOKINGS = bk
@@ -215,7 +215,7 @@ class FootballScoresService(object):
 
         if dt != self.DETAILED:
             level = "ON" if dt else "OFF"
-            debug("Showing additional detail is now {}.".format(level))
+            debug("Showing additional detail is now {0}.".format(level))
             self.DETAILED = dt
 
     def updateWatchedLeagues(self):
@@ -248,10 +248,10 @@ class FootballScoresService(object):
             self.matchdict.pop(l)
 
         if newleagues:
-            debug("Added new leagues: {}".format(newleagues))
+            debug("Added new leagues: {0}".format(newleagues))
 
         if removedleagues:
-            debug("Removed leagues: {}".format(removedleagues))
+            debug("Removed leagues: {0}".format(removedleagues))
 
         if newleagues or removedleagues:
             debug(u"LeagueList - {0}".format(self.matchdict))
@@ -285,7 +285,7 @@ class FootballScoresService(object):
 
             # Should we show notification?
             if (self.SHOW_YELLOW and self.DETAILED):
-                debug(u"yellow card: {}".format(match.LastYellowCard))
+                debug(u"yellow card: {0}".format(match.LastYellowCard))
                 try:
                     yellow = u" {1} ({0})".format(*match.LastYellowCard)
                 except AttributeError:
@@ -299,13 +299,13 @@ class FootballScoresService(object):
                             unicode(match),
                             IMG_YELLOW,
                             timeout=self.NOTIFY_TIME)
-                debug(u"Yellow Card: {}, {}".format(match, yellow))
+                debug(u"Yellow Card: {0}, {1}".format(match, yellow))
 
         if match.redcard:
 
             # Should we show notification?
             if (self.SHOW_RED and self.DETAILED):
-                debug(u"red card: {}".format(match.LastRedCard))
+                debug(u"red card: {0}".format(match.LastRedCard))
                 try:
                     red = u" {1} ({0})".format(*match.LastRedCard)
                 except AttributeError:
@@ -319,7 +319,7 @@ class FootballScoresService(object):
                             unicode(match),
                             IMG_RED,
                             timeout=self.NOTIFY_TIME)
-                debug(u"Red Card: {}, {}".format(match, red))
+                debug(u"Red Card: {0}, {1}".format(match, red))
 
         # Has there been a goal?
         if match.Goal:
@@ -328,7 +328,7 @@ class FootballScoresService(object):
 
             # Should we show goalscorer?
             if (self.SHOW_GOALSCORER and self.DETAILED):
-                debug(u"goalscorer: {}".format(match.LastGoalScorer))
+                debug(u"goalscorer: {0}".format(match.LastGoalScorer))
                 try:
                     scorer = u" {0}".format(match.LastGoalScorer[1])
                 except AttributeError:
@@ -340,7 +340,7 @@ class FootballScoresService(object):
                         unicode(match),
                         IMG_GOAL,
                         timeout=self.NOTIFY_TIME)
-            debug(u"GOAL: {}, {}".format(match, scorer))
+            debug(u"GOAL: {0}, {1}".format(match, scorer))
 
         # Has the status changed? e.g. kick-off, half-time, full-time?
         if match.StatusChanged:
@@ -439,9 +439,9 @@ class FootballScoresService(object):
 
         # If there have been any changes then we need to update the tickers
         if ticker != self.ticker:
-            debug(u"Ticker: {}".format(ticker))
+            debug(u"Ticker: {0}".format(ticker))
             self.ticker = ticker.replace(",", "|").encode("utf-8")
-            xbmc.executebuiltin("Skin.SetString(bbcscorestickertext, {})".format(self.ticker))
+            xbmc.executebuiltin("Skin.SetString(bbcscorestickertext, {0})".format(self.ticker))
             self.updateTickers()
 
     def run(self):
