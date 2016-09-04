@@ -64,6 +64,11 @@ STATUS_DICT = {"FT": ["Full Time", IMG_FT],
               "L": ["Latest", IMG_LATEST],
               "Fixture": ["Fixture", IMG_FIXTURE]}
 
+# Constants for identifying which notifications to display
+NFY_GOALSCORER = 1
+NFY_YELLOW = 2
+NFY_RED = 4
+
 
 # Define core generic funcitons
 
@@ -127,12 +132,12 @@ class FootballScoresService(object):
         self.DETAILED = -1
         self.NOTIFY_TIME = -1
 
-        # Read the addon settings
-        self.getSettings()
-
         # Create a notification queue object for handling notifications
         debug("Creating queue")
         self.queue = NotificationQueue()
+
+        # Read the addon settings
+        self.getSettings()
 
         # Create a settings monitor
         debug("Starting settings monitor...")
@@ -179,6 +184,7 @@ class FootballScoresService(object):
         if n != (self.NOTIFY_TIME / 1000):
             debug("Notification time now {} seconds".format(n))
             self.NOTIFY_TIME = n * 1000
+            self.queue.timeout = self.NOTIFY_TIME
 
     def checkAlerts(self):
         '''Setting is "True" when alerts are disabled.
@@ -193,12 +199,16 @@ class FootballScoresService(object):
         '''Sets certain constants to determine how much detail is required for
            notifications.
         '''
+        nfy_level = 0
+
         d = _GET_("AdditionalDetail") == "true"
 
         gs = _GET_("ShowGoalscorer") == "true"
         if gs != self.SHOW_GOALSCORER:
             debug("Goal scorer alerts now {}.".format("ON" if gs else "OFF"))
             self.SHOW_GOALSCORER = gs
+            if self.SHOW_GOALSCORER:
+                nfy_level += NFY_GOALSCORER
 
         try:
             bk = int(_GET_("ShowBookings"))
@@ -210,6 +220,14 @@ class FootballScoresService(object):
             self.SHOW_YELLOW = bool(bk == 2)
             self.SHOW_RED = bool(bk != 0)
             self.SHOW_BOOKINGS = bk
+
+            if self.SHOW_YELLOW:
+                nfy_level += NFY_YELLOW
+
+            if self.SHOW_RED:
+                nfy_level += NFY_RED
+
+        self.queue.set_level(nfy_level)
 
         dt = all([d, any([self.SHOW_GOALSCORER, self.SHOW_BOOKINGS])])
 
@@ -280,78 +298,82 @@ class FootballScoresService(object):
         Takes one argument:
         match:  footballscores.FootballMatch object
         '''
+        match.goal = True
+        if any([match.booking, match.redcard, match.goal, match.StatusChanged]):
+            debug(u"Match needs processing... {}".format(repr(match)))
+            self.queue.add(match)
 
-        if match.booking:
-
-            # Should we show notification?
-            if (self.SHOW_YELLOW and self.DETAILED):
-                debug(u"yellow card: {}".format(match.LastYellowCard))
-                try:
-                    yellow = u" {1} ({0})".format(*match.LastYellowCard)
-                except AttributeError:
-                    yellow = None
-            else:
-                yellow = None
-
-            if self.SHOW_YELLOW:
-
-                self.Notify(u"YELLOW!{0}".format(yellow if yellow else u""),
-                            unicode(match),
-                            IMG_YELLOW,
-                            timeout=self.NOTIFY_TIME)
-                debug(u"Yellow Card: {}, {}".format(match, yellow))
-
-        if match.redcard:
-
-            # Should we show notification?
-            if (self.SHOW_RED and self.DETAILED):
-                debug(u"red card: {}".format(match.LastRedCard))
-                try:
-                    red = u" {1} ({0})".format(*match.LastRedCard)
-                except AttributeError:
-                    red = None
-            else:
-                red = None
-
-            if self.SHOW_RED:
-
-                self.Notify(u"RED!{0}".format(red if red else u""),
-                            unicode(match),
-                            IMG_RED,
-                            timeout=self.NOTIFY_TIME)
-                debug(u"Red Card: {}, {}".format(match, red))
-
-        # Has there been a goal?
-        if match.Goal:
-
-            # Gooooooooooooooooooooooooooooollllllllllllllll!
-
-            # Should we show goalscorer?
-            if (self.SHOW_GOALSCORER and self.DETAILED):
-                debug(u"goalscorer: {}".format(match.LastGoalScorer))
-                try:
-                    scorer = u" {0}".format(match.LastGoalScorer[1])
-                except AttributeError:
-                    scorer = None
-            else:
-                scorer = None
-
-            self.Notify(u"GOAL!{0}".format(scorer if scorer else u""),
-                        unicode(match),
-                        IMG_GOAL,
-                        timeout=self.NOTIFY_TIME)
-            debug(u"GOAL: {}, {}".format(match, scorer))
-
-        # Has the status changed? e.g. kick-off, half-time, full-time?
-        if match.StatusChanged:
-
-            # Get the relevant status info
-            info = STATUS_DICT.get(match.status, STATUS_DICT["Fixture"])
-
-            # Send the notification
-            self.Notify(info[0], unicode(match), info[1],
-                        timeout=self.NOTIFY_TIME)
-            debug(u"STATUS: {0}".format(unicode(match)))
+        # if match.booking:
+        #
+        #     # Should we show notification?
+        #     if (self.SHOW_YELLOW and self.DETAILED):
+        #         debug(u"yellow card: {}".format(match.LastYellowCard))
+        #         try:
+        #             yellow = u" {1} ({0})".format(*match.LastYellowCard)
+        #         except AttributeError:
+        #             yellow = None
+        #     else:
+        #         yellow = None
+        #
+        #     if self.SHOW_YELLOW:
+        #
+        #         self.Notify(u"YELLOW!{0}".format(yellow if yellow else u""),
+        #                     unicode(match),
+        #                     IMG_YELLOW,
+        #                     timeout=self.NOTIFY_TIME)
+        #         debug(u"Yellow Card: {}, {}".format(match, yellow))
+        #
+        # if match.redcard:
+        #
+        #     # Should we show notification?
+        #     if (self.SHOW_RED and self.DETAILED):
+        #         debug(u"red card: {}".format(match.LastRedCard))
+        #         try:
+        #             red = u" {1} ({0})".format(*match.LastRedCard)
+        #         except AttributeError:
+        #             red = None
+        #     else:
+        #         red = None
+        #
+        #     if self.SHOW_RED:
+        #
+        #         self.Notify(u"RED!{0}".format(red if red else u""),
+        #                     unicode(match),
+        #                     IMG_RED,
+        #                     timeout=self.NOTIFY_TIME)
+        #         debug(u"Red Card: {}, {}".format(match, red))
+        #
+        # # Has there been a goal?
+        # if match.Goal:
+        #
+        #     # Gooooooooooooooooooooooooooooollllllllllllllll!
+        #
+        #     # Should we show goalscorer?
+        #     if (self.SHOW_GOALSCORER and self.DETAILED):
+        #         debug(u"goalscorer: {}".format(match.LastGoalScorer))
+        #         try:
+        #             scorer = u" {0}".format(match.LastGoalScorer[1])
+        #         except AttributeError:
+        #             scorer = None
+        #     else:
+        #         scorer = None
+        #
+        #     self.Notify(u"GOAL!{0}".format(scorer if scorer else u""),
+        #                 unicode(match),
+        #                 IMG_GOAL,
+        #                 timeout=self.NOTIFY_TIME)
+        #     debug(u"GOAL: {}, {}".format(match, scorer))
+        #
+        # # Has the status changed? e.g. kick-off, half-time, full-time?
+        # if match.StatusChanged:
+        #
+        #     # Get the relevant status info
+        #     info = STATUS_DICT.get(match.status, STATUS_DICT["Fixture"])
+        #
+        #     # Send the notification
+        #     self.Notify(info[0], unicode(match), info[1],
+        #                 timeout=self.NOTIFY_TIME)
+        #     debug(u"STATUS: {0}".format(unicode(match)))
 
     def checkTickers(self):
         '''Tickers are not a class property because they are implemented by a

@@ -191,3 +191,30 @@ msgstr ""
 msgctxt "#32115"
 msgid "Getting fixtures data"
 msgstr ""
+
+
+## Notifications
+
+msgctxt "#32200"
+msgid "Goal"
+msgstr ""
+
+msgctxt "#32201"
+msgid "Yellow"
+msgstr ""
+
+msgctxt "#32202"
+msgid "Red"
+msgstr ""
+
+msgctxt "#32203"
+msgid "Kick-Off"
+msgstr ""
+
+msgctxt "#32204"
+msgid "Half-Time"
+msgstr ""
+
+msgctxt "#32205"
+msgid "Full-Time"
+msgstr ""

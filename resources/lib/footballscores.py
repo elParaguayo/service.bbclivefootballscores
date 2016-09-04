@@ -138,6 +138,9 @@ class FootballMatch(matchcommon):
         self.booking = False
         self.redcard = False
         self.leagueid = None
+        self.__goalscorers = []
+        self.__yellowcards = []
+        self.__redcards = []
 
 
     def __findMatch(self):
