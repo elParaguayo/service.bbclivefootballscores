@@ -20,9 +20,17 @@
 import os
 import Queue
 
+try:
+    from threading import Thread
+    CAN_THREAD = True
+except ImportError:
+    from dummy_threading import Thread
+    CAN_THREAD = False
+
 import xbmcgui, xbmc, xbmcaddon
 
 from .advanced_notification import createAdvancedNotification
+from .utils import debug, localise
 
 # Set the addon environment
 _A_ = xbmcaddon.Addon("service.bbclivefootballscores")
@@ -65,16 +73,6 @@ STATUS_DICT = {"FT": ["Full Time", IMG_FT],
               "Fixture": ["Fixture", IMG_FIXTURE]}
 
 
-def debug(msg):
-    '''Script for adding debug messages.
-
-    Takes one argument:
-    msg:    debug message to send to XBMC log
-    '''
-    msg = u"bbclivefootballscores: {0}".format(msg).encode("ascii", "ignore")
-    xbmc.log(msg, xbmc.LOGDEBUG)
-
-
 class NotificationQueue(object):
 
     def __init__(self, timeout=2000, num_workers=5,
@@ -87,12 +85,13 @@ class NotificationQueue(object):
         self.detailed = detailed
         self.advanced = advanced
 
-        try:
-            from threading import Thread
-            self.can_thread = True
-        except ImportError:
-            from dummy_threading import Thread
-            self.can_thread = False
+        self.can_thread = CAN_THREAD
+        # try:
+        #     from threading import Thread
+        #     self.can_thread = True
+        # except ImportError:
+        #     from dummy_threading import Thread
+        #     self.can_thread = False
 
         ct = "can" if self.can_thread else "cannot"
         debug("Notifications {} thread.".format(ct))
@@ -111,10 +110,8 @@ class NotificationQueue(object):
 
         if not self.workers:
 
-            args = (self.worker_queue, self.queue)
-
             for _ in range(self.num_workers):
-                worker = Thread(target=self._advancedNotificationWorker, args=args)
+                worker = Thread(target=self._advancedNotificationWorker)
                 worker.daemon = True
                 worker.start()
                 self.workers.append(worker)
@@ -132,29 +129,29 @@ class NotificationQueue(object):
 
         self.dialog.notification(title, message, icon, timeout)
 
+    # def add(self, match):
+    #
+    #     # if self.can_thread:
+    #     #     self.queue.put((title, message, icon, timeout))
+    #     # else:
+    #     #     self.Notify(title, message, icon, timeout)
+    #
+    #     if self.advanced:
+    #         pass
+    #
+    #     else:
+    #         self.process_standard(match)
+
     def add(self, match):
 
-        # if self.can_thread:
-        #     self.queue.put((title, message, icon, timeout))
-        # else:
-        #     self.Notify(title, message, icon, timeout)
-
-        if self.advanced:
-            pass
-
-        else:
-            self.process_standard(match)
-
-    def process_standard(self, match):
-
-        filename = createAdvancedNotification(EVENT_GOAL, "HELLO!", match)
-        xbmc.executebuiltin("Skin.SetString(bbcscoresnotification, {})".format(filename))
-        xbmc.executebuiltin("Skin.SetBool(showscoredialog)")
-        xbmc.sleep(2000)
-        xbmc.executebuiltin("Skin.Reset(showscoredialog)")
-        xbmc.sleep(500)
-        os.remove(filename)
-        return
+        # filename = createAdvancedNotification(EVENT_GOAL, "Goal: A.Lallana", match)
+        # xbmc.executebuiltin("Skin.SetString(bbcscoresnotification, {})".format(filename))
+        # xbmc.executebuiltin("Skin.SetBool(showscoredialog)")
+        # xbmc.sleep(2000)
+        # xbmc.executebuiltin("Skin.Reset(showscoredialog)")
+        # xbmc.sleep(500)
+        # os.remove(filename)
+        # return
 
 
         if match.booking:
@@ -170,14 +167,14 @@ class NotificationQueue(object):
 
                 if self.advanced:
                     payload = (EVENT_YELLOW, yellow, match)
-                    notification = self.createAdvancedNotification(*payload)
+                    self.advanced_notification(*payload)
 
                 else:
                     payload = (yellow,
                                unicode(match),
                                IMG_YELLOW,
                                self.timeout)
-                    self.standard(*payload)
+                    self.standard_notification(*payload)
 
                 debug(u"Yellow Card: {}, {}".format(match, yellow))
 
@@ -194,14 +191,14 @@ class NotificationQueue(object):
 
                 if self.advanced:
                     payload = (EVENT_RED, red, match)
-                    notification = self.createAdvancedNotification(*payload)
+                    self.advanced_notification(*payload)
 
                 else:
                     payload = (red,
                                unicode(match),
                                IMG_RED,
                                self.timeout)
-                    self.standard(*payload)
+                    self.standard_notification(*payload)
 
                 debug(u"Red Card: {}, {}".format(match, red))
 
@@ -213,24 +210,28 @@ class NotificationQueue(object):
             # Should we show goalscorer?
             if self.level & NFY_GOALSCORER:
 
+                simple = False
+
                 try:
                     scorer = u"{0}: {1}".format(localise(32200),
                                                 match.LastGoalScorer[1])
                 except (TypeError, AttributeError):
+                    simple = True
                     scorer = u"{0}!".format(localise(32200))
             else:
+                simple = True
                 scorer = u"{0}!".format(localise(32200))
 
             if self.advanced:
-                payload = (EVENT_GOAL, scorer, match)
-                notification = self.createAdvancedNotification(*payload)
+                payload = (EVENT_GOAL, scorer, match, simple)
+                self.advanced_notification(*payload)
 
             else:
                 payload = (scorer,
                            unicode(match),
                            IMG_GOAL,
                            self.timeout)
-                self.standard(*payload)
+                self.standard_notification(*payload)
 
             debug(u"GOAL: {}, {}".format(match, scorer))
 
@@ -242,27 +243,43 @@ class NotificationQueue(object):
 
             if self.advanced:
                 payload = (EVENT_STATUS, info[0], match)
-                notification = self.createAdvancedNotification(*payload)
+                self.advanced_notification(*payload)
 
             else:
                 # Send the notification
                 payload = (info[0], unicode(match), info[1],
                            self.timeout)
-                self.standard(*payload)
+                self.standard_notification(*payload)
 
             debug(u"STATUS: {0}".format(unicode(match)))
 
-    def standard(self, title, message, icon=None, timeout=2000):
+    def standard_notification(self, title, message, icon=None, timeout=2000):
         if self.can_thread:
             self.queue.put((NOTIFY_STANDARD_DISPLAY,
                             (title, message, icon, timeout)))
         else:
             self.Notify(title, message, icon, timeout)
 
+    def advanced_notification(self, event_type, title, match, simple=False):
+        if self.can_thread and self.workers:
+            self.worker_queue.put((NOTIFY_ADVANCED_PREPARE,
+                                   (event_type, title, match, simple)))
+        else:
+            self.AdvancedNotify(event_type, title, match, simple)
+
+    def showAdvanced(self, filename):
+        xbmc.executebuiltin("Skin.SetString(bbcscoresnotification, "
+                            "{})".format(filename))
+        xbmc.executebuiltin("Skin.SetBool(showscoredialog)")
+        xbmc.sleep(self.timeout + 250)
+        xbmc.executebuiltin("Skin.Reset(showscoredialog)")
+        xbmc.sleep(250)
+        os.remove(filename)
+
     def __process(self):
 
         while not xbmc.abortRequested:
-            while not self.queue.empty():
+            while not (self.queue.empty() or xbmc.abortRequested):
                 self.busy = True
                 mode, payload = self.queue.get()
                 if mode == NOTIFY_STANDARD_DISPLAY:
@@ -270,15 +287,20 @@ class NotificationQueue(object):
                     self.Notify(t, m, i, d)
                     xbmc.sleep(d)
 
+                elif mode == NOTIFY_ADVANCED_DISPLAY:
+                    self.showAdvanced(payload)
+
             xbmc.sleep(500)
 
     def _advancedNotificationWorker(self):
 
         while not xbmc.abortRequested:
-            while not self.worker_queue.empty():
-                payload = self.worker_queue.get()
-                advanced_notification = createAdvancedNotification(*payload)
-                new_payload =(NOTIFY_STANDARD_DISPLAY, (advanced_notification, ))
-                self.queue.put(new_payload)
+            while not (self.worker_queue.empty() or xbmc.abortRequested):
+                action, payload = self.worker_queue.get()
+                if action == NOTIFY_ADVANCED_PREPARE:
+                    advanced_notification = createAdvancedNotification(*payload)
+                    self.queue.put((NOTIFY_ADVANCED_DISPLAY,
+                                    advanced_notification))
+                self.worker_queue.task_done()
 
             xbmc.sleep(500)

@@ -34,6 +34,7 @@ import xbmcgui
 
 from resources.lib.footballscores import League
 from resources.lib.notificationqueue import NotificationQueue
+from resources.lib.utils import debug, localise
 
 # Set the addon environment
 _A_ = xbmcaddon.Addon("service.bbclivefootballscores")
@@ -68,26 +69,6 @@ STATUS_DICT = {"FT": ["Full Time", IMG_FT],
 NFY_GOALSCORER = 1
 NFY_YELLOW = 2
 NFY_RED = 4
-
-
-# Define core generic funcitons
-
-def localise(id):
-    '''Gets localised string.
-
-    Shamelessly copied from service.xbmc.versioncheck
-    '''
-    string = _A_.getLocalizedString(id).encode( 'utf-8', 'ignore' )
-    return string
-
-def debug(msg):
-    '''Script for adding debug messages.
-
-    Takes one argument:
-    msg:    debug message to send to XBMC log
-    '''
-    msg = u"bbclivefootballscores: {0}".format(msg).encode("ascii", "ignore")
-    xbmc.log(msg, xbmc.LOGDEBUG)
 
 
 class SettingsMonitor(xbmc.Monitor):
@@ -131,6 +112,7 @@ class FootballScoresService(object):
         self.SHOW_RED = -1
         self.DETAILED = -1
         self.NOTIFY_TIME = -1
+        self.ADVANCED_NOTIFICATIONS = -1
 
         # Create a notification queue object for handling notifications
         debug("Creating queue")
@@ -202,6 +184,7 @@ class FootballScoresService(object):
         nfy_level = 0
 
         d = _GET_("AdditionalDetail") == "true"
+        adv = _GET_("AdvancedNotifications") == "true"
 
         gs = _GET_("ShowGoalscorer") == "true"
         if gs != self.SHOW_GOALSCORER:
@@ -235,6 +218,13 @@ class FootballScoresService(object):
             level = "ON" if dt else "OFF"
             debug("Showing additional detail is now {}.".format(level))
             self.DETAILED = dt
+
+        advanced = d and adv
+        if advanced != self.ADVANCED_NOTIFICATIONS:
+            level = "ON" if advanced else "OFF"
+            debug("Advanced notifications are now {0}".format(level))
+            self.queue.set_advanced(advanced)
+            self.ADVANCED_NOTIFICATIONS = advanced
 
     def updateWatchedLeagues(self):
         '''Updates our active leagues to make sure that we're just looking at

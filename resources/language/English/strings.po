@@ -94,7 +94,11 @@ msgctxt "#32033"
 msgid "All"
 msgstr ""
 
-#empty ids from 32034 through 32099
+msgctxt "#32034"
+msgid "Show advanced notifications (team badges etc.)"
+msgstr ""
+
+#empty ids from 32035 through 32099
 
 ## ACTIONS
 
@@ -217,4 +221,8 @@ msgstr ""
 
 msgctxt "#32205"
 msgid "Full-Time"
+msgstr ""
+
+msgctxt "#32206"
+msgid "Time"
 msgstr ""

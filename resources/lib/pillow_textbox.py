@@ -190,7 +190,8 @@ def _draw_textbox(string, rect, font, text_color, background_color,
 
         # Left aligned
         if justification == 0:
-            pos = (0 + margin[0], accumulated_height), font.getsize(line.strip())
+            # pos = (0 + margin[0], accumulated_height), font.getsize(line.strip())
+            pos = (0 + margin[0], accumulated_height)
             draw.text(pos,
                       line.strip(),
                       text_color,

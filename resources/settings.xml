@@ -18,6 +18,7 @@
 		<setting id="AdditionalDetail" label="32028" default="false" type="bool" />
 		<setting id="ShowGoalscorer" label="32029" type="bool" default="false" enable="eq(-1,true)" />
 		<setting id="ShowBookings" label="32030" type="enum" lvalues="32031|32032|32033" default="0" enable="eq(-2,true)" />
+		<setting id="AdvancedNotifications" label="32034" type="bool" default="false" enable="eq(-3,true)" />
 
 		<!-- Hidden, default values to stop annoying crashes on first run -->
     <setting id="currenttickers" visible="false" type="text" default="{}" />
