@@ -22,6 +22,7 @@
 
 import os
 import sys
+from threading import Lock
 
 if sys.version_info >=  (2, 7):
     import json as json
@@ -34,6 +35,7 @@ import xbmcgui
 
 from resources.lib.footballscores import League
 from resources.lib.notificationqueue import NotificationQueue
+from resources.lib.service_settings import ServiceSettings
 from resources.lib.utils import debug, localise
 
 # Set the addon environment
@@ -41,6 +43,7 @@ _A_ = xbmcaddon.Addon("service.bbclivefootballscores")
 _GET_ = _A_.getSetting
 _SET_ = _A_.setSetting
 pluginPath = _A_.getAddonInfo("path")
+ADDON_PROFILE = xbmc.translatePath(_A_.getAddonInfo('profile')).decode('utf-8')
 
 # Set some constants
 
@@ -70,6 +73,12 @@ NFY_GOALSCORER = 1
 NFY_YELLOW = 2
 NFY_RED = 4
 
+SETTINGS_ALERTS = ("Alerts", )
+SETTINGS_NOTIFICATIONS = ("AdditionalDetail", "AdvancedNotifications",
+                          "ShowBookings", "ShowGoalscorer")
+SETTINGS_NOTIFICATION_TIME = ("DisplayTime", )
+SETTINGS_LEAGUES = ("watchedleagues", )
+
 
 class SettingsMonitor(xbmc.Monitor):
     '''Handler to checking when settings are updated and triggering an
@@ -79,10 +88,16 @@ class SettingsMonitor(xbmc.Monitor):
     def __init__(self, *args, **kwargs):
         xbmc.Monitor.__init__(self)
         self.action = kwargs['action']
+        self.lock = kwargs['lock']
+        debug("Binding settings action to {0}".format(repr(self.action)))
 
     def onSettingsChanged(self):
         debug("Detected change in settings (NB may not be this addon)")
-        self.action()
+        try:
+            self.lock.acquire()
+            self.action()
+        finally:
+            self.lock.release()
 
 
 class FootballScoresService(object):
@@ -114,16 +129,22 @@ class FootballScoresService(object):
         self.NOTIFY_TIME = -1
         self.ADVANCED_NOTIFICATIONS = -1
 
+        self.updated_needed = False
+
         # Create a notification queue object for handling notifications
         debug("Creating queue")
         self.queue = NotificationQueue()
 
         # Read the addon settings
+        self.config = ServiceSettings("service.bbclivefootballscores")
         self.getSettings()
+
+        self.lock = Lock()
 
         # Create a settings monitor
         debug("Starting settings monitor...")
-        self.monitor = SettingsMonitor(action=self.getSettings)
+        self.monitor = SettingsMonitor(action=self.queue_update,
+                                       lock=self.lock)
 
         # Clear old tickers
         debug("Clearing tickers")
@@ -147,18 +168,27 @@ class FootballScoresService(object):
            changes made to settings while the service is running are also
            updated.
         '''
+
         debug("Checking settings...")
-        self.checkAlerts()
-        self.checkNotificationDetailLevel()
-        self.updateWatchedLeagues()
-        self.checkNotificationTime()
+        if any(x in SETTINGS_ALERTS for x in self.config._updated):
+            self.checkAlerts()
+
+        if any(x in SETTINGS_NOTIFICATIONS for x in self.config._updated):
+            self.checkNotificationDetailLevel()
+
+        if any(x in SETTINGS_LEAGUES for x in self.config._updated):
+            self.updateWatchedLeagues()
+
+        if any(x in SETTINGS_NOTIFICATION_TIME for x in self.config._updated):
+            self.checkNotificationTime()
 
     def checkNotificationTime(self):
         '''Sets the length of time for which notifications should be
            displayed.
         '''
         try:
-            n = int(_GET_("DisplayTime"))
+            #n = int(_GET_("DisplayTime"))
+            n = int(self.config.DisplayTime)
         except ValueError:
             # Default is 2 seconds
             n = 2
@@ -171,11 +201,16 @@ class FootballScoresService(object):
     def checkAlerts(self):
         '''Setting is "True" when alerts are disabled.
         '''
-        alerts = _GET_("Alerts") != "true"
+        #alerts = _GET_("Alerts") != "true"
+        alerts = self.config.Alerts != "true"
 
         if alerts != self.SHOW_ALERTS:
             debug("Alerts now {}.".format("ON" if alerts else "OFF"))
             self.SHOW_ALERTS = alerts
+
+    def queue_update(self):
+        debug("Queuing settings update...")
+        self.updated_needed = True
 
     def checkNotificationDetailLevel(self):
         '''Sets certain constants to determine how much detail is required for
@@ -183,18 +218,22 @@ class FootballScoresService(object):
         '''
         nfy_level = 0
 
-        d = _GET_("AdditionalDetail") == "true"
-        adv = _GET_("AdvancedNotifications") == "true"
+        # d = _GET_("AdditionalDetail") == "true"
+        # adv = _GET_("AdvancedNotifications") == "true"
+        d = self.config.AdditionalDetail == "true"
+        adv = self.config.AdvancedNotifications == "true"
 
-        gs = _GET_("ShowGoalscorer") == "true"
+        #gs = _GET_("ShowGoalscorer") == "true"
+        gs = self.config.ShowGoalscorer == "true"
         if gs != self.SHOW_GOALSCORER:
             debug("Goal scorer alerts now {}.".format("ON" if gs else "OFF"))
             self.SHOW_GOALSCORER = gs
-            if self.SHOW_GOALSCORER:
-                nfy_level += NFY_GOALSCORER
+        if self.SHOW_GOALSCORER:
+            nfy_level += NFY_GOALSCORER
 
         try:
-            bk = int(_GET_("ShowBookings"))
+            #bk = int(_A_.getSetting("ShowBookings"))
+            bk = int(self.config.ShowBookings)
         except ValueError:
             bk = 0
 
@@ -204,11 +243,11 @@ class FootballScoresService(object):
             self.SHOW_RED = bool(bk != 0)
             self.SHOW_BOOKINGS = bk
 
-            if self.SHOW_YELLOW:
-                nfy_level += NFY_YELLOW
+        if self.SHOW_YELLOW:
+            nfy_level += NFY_YELLOW
 
-            if self.SHOW_RED:
-                nfy_level += NFY_RED
+        if self.SHOW_RED:
+            nfy_level += NFY_RED
 
         self.queue.set_level(nfy_level)
 
@@ -271,7 +310,8 @@ class FootballScoresService(object):
         try:
 
             # Get the settings value and convert to a list
-            watchedleagues = json.loads(str(_GET_("watchedleagues")))
+            #watchedleagues = json.loads(str(_GET_("watchedleagues")))
+            watchedleagues = json.loads(self.config.watchedleagues)
 
         # if there's a problem
         except:
@@ -288,7 +328,7 @@ class FootballScoresService(object):
         Takes one argument:
         match:  footballscores.FootballMatch object
         '''
-        match.goal = True
+        #match.goal = True
         if any([match.booking, match.redcard, match.goal, match.StatusChanged]):
             debug(u"Match needs processing... {}".format(repr(match)))
             self.queue.add(match)
@@ -376,7 +416,8 @@ class FootballScoresService(object):
            Kodi session) then it needs to be removed from the list.
         '''
         try:
-            tickers = json.loads(_GET_("currenttickers"))
+            #tickers = json.loads(_GET_("currenttickers"))
+            tickers = json.loads(self.config.currenttickers)
         except ValueError:
             tickers = {}
 
@@ -393,13 +434,15 @@ class FootballScoresService(object):
         for k in d:
             tickers.pop(k)
 
-        _SET_("currenttickers", json.dumps(tickers))
+        #_SET_("currenttickers", json.dumps(tickers))
+        self.config.currenttickers = json.dumps(tickers)
 
     def updateTickers(self):
         '''Updates the ticker text on all known tickers.'''
 
         try:
-            tickers = json.loads(_GET_("currenttickers"))
+            #tickers = json.loads(_GET_("currenttickers"))
+            tickers = json.loads(self.config.currenttickers)
         except ValueError:
             tickers = {}
 
@@ -468,18 +511,33 @@ class FootballScoresService(object):
         # Main service loop - need to exit script cleanly if XBMC is shutting
         # down
         debug("Entering main loop...")
-        while not xbmc.abortRequested:
+        while not self.monitor.abortRequested():
+
+            if self.monitor.waitForAbort(5):
+                break
+
+            if self.updated_needed:
+                try:
+                    self.config._reload()
+                    self.getSettings()
+                finally:
+                    self.updated_needed = False
 
             # If user wants alerts and we've reached our desired loop number...
             if self.SHOW_ALERTS and not i:
 
                 # Update our match dictionary and check for updates.
                 debug("Checking scores...")
-                self.doUpdates()
+
+                try:
+                    self.lock.acquire()
+                    self.doUpdates()
+                finally:
+                    self.lock.release()
 
             # Sleep for 5 seconds
             # (if this is longer, XBMC may not shut down cleanly.)
-            xbmc.sleep(5000)
+            #xbmc.sleep(5000)
 
             # Increment our counter
             # 12 x 5000 = 60,000 i.e. scores update every 1 minute
