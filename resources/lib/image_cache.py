@@ -14,7 +14,7 @@ IMG_PLAYER_CUTOUT = 1
 IMG_PLAYER_THUMB = 2
 IMG_TEAM_BADGE = 3
 
-_A_ = xbmcaddon.Addon()
+_A_ = xbmcaddon.Addon("service.bbclivefootballscores")
 
 ADDON_PROFILE = xbmc.translatePath(_A_.getAddonInfo('profile')).decode('utf-8')
 

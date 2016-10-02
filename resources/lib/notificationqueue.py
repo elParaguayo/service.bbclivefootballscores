@@ -84,6 +84,7 @@ class NotificationQueue(object):
         self.level = 0
         self.detailed = detailed
         self.advanced = advanced
+        self.monitor = xbmc.Monitor()
 
         self.can_thread = CAN_THREAD
         # try:
@@ -124,6 +125,7 @@ class NotificationQueue(object):
 
     def set_level(self, level):
         self.level = level
+        debug("Queue: Notification level: {0}".format(self.level))
 
     def Notify(self, title, message, icon=None, timeout=2000):
 
@@ -274,12 +276,12 @@ class NotificationQueue(object):
         xbmc.sleep(self.timeout + 250)
         xbmc.executebuiltin("Skin.Reset(showscoredialog)")
         xbmc.sleep(250)
-        os.remove(filename)
+        #os.remove(filename)
 
     def __process(self):
 
-        while not xbmc.abortRequested:
-            while not (self.queue.empty() or xbmc.abortRequested):
+        while not self.monitor.abortRequested():
+            while not (self.queue.empty() or self.monitor.abortRequested()):
                 self.busy = True
                 mode, payload = self.queue.get()
                 if mode == NOTIFY_STANDARD_DISPLAY:
@@ -290,12 +292,13 @@ class NotificationQueue(object):
                 elif mode == NOTIFY_ADVANCED_DISPLAY:
                     self.showAdvanced(payload)
 
-            xbmc.sleep(500)
+            if self.monitor.waitForAbort(0.5):
+                break
 
     def _advancedNotificationWorker(self):
 
-        while not xbmc.abortRequested:
-            while not (self.worker_queue.empty() or xbmc.abortRequested):
+        while not self.monitor.abortRequested():
+            while not (self.worker_queue.empty() or self.monitor.abortRequested()):
                 action, payload = self.worker_queue.get()
                 if action == NOTIFY_ADVANCED_PREPARE:
                     advanced_notification = createAdvancedNotification(*payload)
@@ -303,4 +306,5 @@ class NotificationQueue(object):
                                     advanced_notification))
                 self.worker_queue.task_done()
 
-            xbmc.sleep(500)
+            if self.monitor.waitForAbort(0.5):
+                break
