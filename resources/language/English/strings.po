@@ -34,6 +34,10 @@ msgctxt "#32003"
 msgid "Notification display time (secs)"
 msgstr ""
 
+msgctxt "#32004"
+msgid "Update interval (secs)"
+msgstr ""
+
 #empty ids from 32003 through 32019
 
 #settings script messages

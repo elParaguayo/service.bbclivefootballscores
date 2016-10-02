@@ -7,6 +7,7 @@
 		<setting id="SetLeagues" label="32000" type="action" action="RunScript(service.bbclivefootballscores, mode=selectleague)" default="" />
 		<setting id="Alerts" label="32001" default="false" type="bool" />
 		<setting id="DisplayTime" label="32003" type="slider" range="1,1,20" option="int" default="2" />
+		<setting id="RefreshTime" label="32004" type="enum" values="60|90|120|150|180|300|600|900" default="0" />
 
 		<setting type="sep" />
 
