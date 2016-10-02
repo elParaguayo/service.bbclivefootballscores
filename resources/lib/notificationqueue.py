@@ -146,16 +146,6 @@ class NotificationQueue(object):
 
     def add(self, match):
 
-        # filename = createAdvancedNotification(EVENT_GOAL, "Goal: A.Lallana", match)
-        # xbmc.executebuiltin("Skin.SetString(bbcscoresnotification, {})".format(filename))
-        # xbmc.executebuiltin("Skin.SetBool(showscoredialog)")
-        # xbmc.sleep(2000)
-        # xbmc.executebuiltin("Skin.Reset(showscoredialog)")
-        # xbmc.sleep(500)
-        # os.remove(filename)
-        # return
-
-
         if match.booking:
 
             # Should we show notification?
