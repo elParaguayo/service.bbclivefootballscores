@@ -4,7 +4,9 @@
 
 	<category label="32090">
 
-		<setting id="SetLeagues" label="32000" type="action" action="RunScript(service.bbclivefootballscores, mode=selectleague)" default="" />
+		<setting id="SetTeams" label="32004" type="action" action="RunScript(service.bbclivefootballscores, mode=selectteams)" default="" />
+		<setting label="32005" type="lsep" />
+		<!-- <setting id="SetLeagues" label="32000" type="action" action="RunScript(service.bbclivefootballscores, mode=selectleague)" default="" />
 		<setting id="Alerts" label="32001" default="false" type="bool" />
 		<setting id="DisplayTime" label="32003" type="slider" range="1,1,20" option="int" default="2" />
 
@@ -17,25 +19,26 @@
 
 		<setting id="AdditionalDetail" label="32028" type="bool" />
 		<setting id="ShowGoalscorer" label="32029" type="bool" default="false" enable="eq(-1,true)" />
-		<setting id="ShowBookings" label="32030" type="enum" lvalues="32031|32032|32033" default="0" enable="eq(-2,true)" />
+		<setting id="ShowBookings" label="32030" type="enum" lvalues="32031|32032" default="0" enable="eq(-2,true)" /> -->
 
 		<!-- Hidden, default values to stop annoying crashes on first run -->
     <setting id="currenttickers" visible="false" type="text" default="{}" />
     <setting id="masterlist" visible="false" type="text" default="[]" />
     <setting id="ticker" visible="false" type="text" default="" />
     <setting id="watchedleagues" visible="false" type="text" default="[]" />
+		<setting id="watchedteams" visible="false" type="text" default="[]" />
 		<!-- End of hidden settings -->
 
 	</category>
 
-	<category label="32091">
+	<!-- <category label="32091"> -->
 
 		<!-- Buttons to launch various additional functions -->
-		<setting id="dummy1" label="32080" type="action" action="RunScript(service.bbclivefootballscores, mode=leaguetable)" />
+		<!-- <setting id="dummy1" label="32080" type="action" action="RunScript(service.bbclivefootballscores, mode=leaguetable)" />
 		<setting id="dummy2" label="32081" type="action" action="RunScript(service.bbclivefootballscores, mode=matchdetail)" />
 		<setting id="dummy3" label="32082" type="action" action="RunScript(service.bbclivefootballscores, mode=results)" />
 		<setting id="dummy4" label="32083" type="action" action="RunScript(service.bbclivefootballscores, mode=fixtures)" />
 
-	</category>
+	</category> -->
 
 </settings>

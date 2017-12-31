@@ -34,6 +34,14 @@ msgctxt "#32003"
 msgid "Notification display time (secs)"
 msgstr ""
 
+msgctxt "#32004"
+msgid "Select teams..."
+msgstr ""
+
+msgctxt "#32005"
+msgid "You must press 'ok' after selecting teams to save the selection"
+msgstr ""
+
 #empty ids from 32003 through 32019
 
 #settings script messages

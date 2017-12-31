@@ -38,138 +38,152 @@ import xbmcgui
 import xbmcaddon
 
 # Import service specific objects
-from resources.lib.settings import selectLeagues, toggleNotification
-from resources.lib.league_tables import XBMCLeagueTable
-from resources.lib.live_scores_detail import XBMCLiveScoresDetail
-from resources.lib.results import XBMCResults
-from resources.lib.fixtures import XBMCFixtures
-from resources.lib.utils import closeAddonSettings
-from resources.lib.menu import FootballHelperMenu
-from resources.lib.ticker import TickerOverlay
-
-# Import PyXBMCt module.
-from pyxbmct.addonwindow import *
+from resources.lib.settings import selectTeams
+# from resources.lib.league_tables import XBMCLeagueTable
+# from resources.lib.live_scores_detail import XBMCLiveScoresDetail
+# from resources.lib.results import XBMCResults
+# from resources.lib.fixtures import XBMCFixtures
+# from resources.lib.utils import closeAddonSettings
+# from resources.lib.menu import FootballHelperMenu
+# from resources.lib.ticker import TickerOverlay
+#
+# # Import PyXBMCt module.
+# from pyxbmct.addonwindow import *
 
 _A_ = xbmcaddon.Addon("service.bbclivefootballscores")
 _GET_ = _A_.getSetting
 _SET_ = _A_.setSetting
 
-getwin = {"jsonrpc":"2.0",
-          "id":1,
-          "method":"GUI.GetProperties",
-          "params":
-            {"properties":["currentwindow"]}
-         }
-
-def ToggleTicker():
-
-    try:
-        tickers = json.loads(_GET_("currenttickers"))
-    except ValueError:
-        tickers = {}
-
-    if not tickers:
-        tickers = {}
-
-    # Get the current window ID
-    current_window = xbmc.executeJSONRPC(json.dumps(getwin))
-    window_id = json.loads(current_window)["result"]["currentwindow"]["id"]
-
-    # json doesn't like integer keys so we need to look for a unicode object
-    key = unicode(window_id)
-
-    if key in tickers:
-
-        # There's already a ticker on this window
-        # Remove it from our list but get the ID of the ticker first
-        tickerid = tickers.pop(key)
-
-        # Get the window
-        w = xbmcgui.Window(window_id)
-
-        # Find the ticker
-        t = w.getControl(tickerid)
-
-        # and remove it
-        w.removeControl(t)
-
-    else:
-
-        # No ticker, so create one
-        ScoreTicker = TickerOverlay(window_id)
-
-        # Show it
-        ScoreTicker.show()
-
-        # Give it current text
-        tickertext = _GET_("ticker")
-        ScoreTicker.update(tickertext)
-
-        # Add to our list of current active tickers
-        tickers[ScoreTicker.windowid] = ScoreTicker.id
-
-    # Save our list
-    _SET_("currenttickers", json.dumps(tickers))
-
+# getwin = {"jsonrpc":"2.0",
+#           "id":1,
+#           "method":"GUI.GetProperties",
+#           "params":
+#             {"properties":["currentwindow"]}
+#          }
+#
+# def ToggleTicker():
+#
+#     try:
+#         tickers = json.loads(_GET_("currenttickers"))
+#     except ValueError:
+#         tickers = {}
+#
+#     if not tickers:
+#         tickers = {}
+#
+#     # Get the current window ID
+#     current_window = xbmc.executeJSONRPC(json.dumps(getwin))
+#     window_id = json.loads(current_window)["result"]["currentwindow"]["id"]
+#
+#     # json doesn't like integer keys so we need to look for a unicode object
+#     key = unicode(window_id)
+#
+#     if key in tickers:
+#
+#         # There's already a ticker on this window
+#         # Remove it from our list but get the ID of the ticker first
+#         tickerid = tickers.pop(key)
+#
+#         # Get the window
+#         w = xbmcgui.Window(window_id)
+#
+#         # Find the ticker
+#         t = w.getControl(tickerid)
+#
+#         # and remove it
+#         w.removeControl(t)
+#
+#     else:
+#
+#         # No ticker, so create one
+#         ScoreTicker = TickerOverlay(window_id)
+#
+#         # Show it
+#         ScoreTicker.show()
+#
+#         # Give it current text
+#         tickertext = xbmc.getInfoLabel("Skin.String(bbcscorestickertext)")
+#         tickertext = tickertext.decode("utf-8").replace("|", ",")
+#         ScoreTicker.update(unicode(tickertext))
+#
+#         # Add to our list of current active tickers
+#         tickers[ScoreTicker.windowid] = ScoreTicker.id
+#
+#     # Save our list
+#     _SET_("currenttickers", json.dumps(tickers))
+#
 try:
     params = dict((x.split("=") for x in sys.argv[1].lower().split(";")))
 except (ValueError, AttributeError, IndexError):
     params = {}
-
-# If no parameters are passed then we show default menu
-if not params:
-
-    menu = FootballHelperMenu()
-    menu.show()
-
-
+#
+# # If no parameters are passed then we show default menu
+# if not params:
+#
+#     menu = FootballHelperMenu()
+#     menu.show()
+#     menu = None
+#
+#
 # If there are parameters, let's see what we want to do...
-if params.get("mode") == "selectleague":
+if params.get("mode") == "selectteams":
 
-    selectLeagues()
-
-elif params.get("mode") == "leaguetable":
-
-    # Close addon setting window (if open)
-    closeAddonSettings()
-
-    # Create an instance of the XBMC League Table
-    xlt = XBMCLeagueTable()
-
-    # and display it!
-    xlt.start()
-
-elif params.get("mode") == "matchdetail":
-
-    # Close addon setting window (if open)
-    closeAddonSettings()
-
-    # Create an instance of the XBMC League Table
-    xlsd = XBMCLiveScoresDetail()
-
-    # and display it!
-    xlsd.start()
-
-elif params.get("mode") == "results":
-    # Close addon setting window (if open)
-    closeAddonSettings()
-
-    # Create an instance of the XBMC Results
-    xr = XBMCResults()
-
-    # and display it!
-    xr.start()
-
-elif params.get("mode") == "fixtures":
-    # Close addon setting window (if open)
-    closeAddonSettings()
-
-    # Create an instance of the XBMC Fixtures
-    xf = XBMCFixtures()
-
-    # and display it!
-    xf.start()
-
-elif params.get("mode") == "toggleticker":
-
-    ToggleTicker()
+    selectTeams()
+#
+# elif params.get("mode") == "leaguetable":
+#
+#     # Close addon setting window (if open)
+#     closeAddonSettings()
+#
+#     # Create an instance of the XBMC League Table
+#     xlt = XBMCLeagueTable()
+#
+#     # and display it!
+#     xlt.start()
+#
+#     # Get rid of it when we're finished
+#     xlt = None
+#
+# elif params.get("mode") == "matchdetail":
+#
+#     # Close addon setting window (if open)
+#     closeAddonSettings()
+#
+#     # Create an instance of the XBMC League Table
+#     xlsd = XBMCLiveScoresDetail()
+#
+#     # and display it!
+#     xlsd.start()
+#
+#     # Get rid of it when we're finished
+#     xlsd = None
+#
+# elif params.get("mode") == "results":
+#     # Close addon setting window (if open)
+#     closeAddonSettings()
+#
+#     # Create an instance of the XBMC Results
+#     xr = XBMCResults()
+#
+#     # and display it!
+#     xr.start()
+#
+#     # Get rid of it when we're finished
+#     xr = None
+#
+# elif params.get("mode") == "fixtures":
+#     # Close addon setting window (if open)
+#     closeAddonSettings()
+#
+#     # Create an instance of the XBMC Fixtures
+#     xf = XBMCFixtures()
+#
+#     # and display it!
+#     xf.start()
+#
+#     # Get rid of it when we're finished
+#     xf = None
+#
+# elif params.get("mode") == "toggleticker":
+#
+#     ToggleTicker()
